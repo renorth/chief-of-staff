@@ -20,7 +20,7 @@ export const COLUMNS = [
 ]
 
 export const TAGS = [
-  { id: 'trials',          label: 'Trials',          color: '#f0883e' },
+  { id: 'trials',          label: 'Trials',          color: '#e040fb' },
   { id: 'office_client',   label: 'Office Client',   color: '#79c0ff' },
   { id: 'office_checkout', label: 'Office Checkout', color: '#ff9bce' },
   { id: 'personal',        label: 'Personal',        color: '#d2a8ff' },
