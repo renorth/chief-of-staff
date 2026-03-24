@@ -1,0 +1,230 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$authentication": { "defaultValue": {}, "type": "SecureObject" },
+    "$connections":     { "defaultValue": {}, "type": "Object" }
+  },
+
+  "triggers": {
+    "Recurrence": {
+      "type": "Recurrence",
+      "recurrence": {
+        "frequency":  "Week",
+        "interval":   1,
+        "timeZone":   "Eastern Standard Time",
+        "startTime":  "2026-03-25T10:00:00",
+        "schedule": {
+          "hours":    ["10"],
+          "minutes":  [0],
+          "weekDays": ["Monday","Tuesday","Wednesday","Thursday","Friday"]
+        }
+      }
+    }
+  },
+
+  "actions": {
+
+    "Init_varSince": {
+      "type": "InitializeVariable",
+      "runAfter": {},
+      "inputs": {
+        "variables": [{
+          "name":  "varSince",
+          "type":  "string",
+          "value": "@concat(formatDateTime(addDays(utcNow(), -1), 'yyyy-MM-dd'), ' 00:00:00Z')"
+        }]
+      }
+    },
+
+    "Init_varUSHTML": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varSince": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varUSHTML",
+          "type":  "string",
+          "value": "<li><em>⚠️ US news feed unavailable</em></li>"
+        }]
+      }
+    },
+
+    "Init_varWorldHTML": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varUSHTML": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varWorldHTML",
+          "type":  "string",
+          "value": "<li><em>⚠️ World news feed unavailable</em></li>"
+        }]
+      }
+    },
+
+    "Init_varTechHTML": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varWorldHTML": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varTechHTML",
+          "type":  "string",
+          "value": "<li><em>⚠️ Tech news feed unavailable</em></li>"
+        }]
+      }
+    },
+
+    "RSS_US": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Init_varTechHTML": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_rss",
+          "connectionName": "shared_rss",
+          "operationId":   "ListFeedItems"
+        },
+        "parameters": {
+          "feedUrl": "https://rss.cnn.com/rss/cnn_topstories.rss",
+          "since":   "@variables('varSince')"
+        }
+      }
+    },
+
+    "RSS_World": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Init_varTechHTML": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_rss",
+          "connectionName": "shared_rss",
+          "operationId":   "ListFeedItems"
+        },
+        "parameters": {
+          "feedUrl": "https://feeds.bbci.co.uk/news/world/rss.xml",
+          "since":   "@variables('varSince')"
+        }
+      }
+    },
+
+    "RSS_Tech": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Init_varTechHTML": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_rss",
+          "connectionName": "shared_rss",
+          "operationId":   "ListFeedItems"
+        },
+        "parameters": {
+          "feedUrl": "https://feeds.feedburner.com/TechCrunch/",
+          "since":   "@variables('varSince')"
+        }
+      }
+    },
+
+    "Select_US": {
+      "type": "Select",
+      "runAfter": { "RSS_US": ["Succeeded"] },
+      "inputs": {
+        "from":   "@if(greater(length(body('RSS_US')), 5), take(body('RSS_US'), 5), body('RSS_US'))",
+        "select": "@concat('<li><a href=''', item()?['primaryLink'], '''>', item()?['title'], '</a><br/><small style=''color:#8b949e''>', item()?['publishDate'], '</small></li>')"
+      }
+    },
+
+    "Set_varUSHTML": {
+      "type": "SetVariable",
+      "runAfter": { "Select_US": ["Succeeded"] },
+      "inputs": {
+        "name":  "varUSHTML",
+        "value": "@{join(body('Select_US'), '')}"
+      }
+    },
+
+    "Select_World": {
+      "type": "Select",
+      "runAfter": { "RSS_World": ["Succeeded"] },
+      "inputs": {
+        "from":   "@if(greater(length(body('RSS_World')), 5), take(body('RSS_World'), 5), body('RSS_World'))",
+        "select": "@concat('<li><a href=''', item()?['primaryLink'], '''>', item()?['title'], '</a><br/><small style=''color:#8b949e''>', item()?['publishDate'], '</small></li>')"
+      }
+    },
+
+    "Set_varWorldHTML": {
+      "type": "SetVariable",
+      "runAfter": { "Select_World": ["Succeeded"] },
+      "inputs": {
+        "name":  "varWorldHTML",
+        "value": "@{join(body('Select_World'), '')}"
+      }
+    },
+
+    "Select_Tech": {
+      "type": "Select",
+      "runAfter": { "RSS_Tech": ["Succeeded"] },
+      "inputs": {
+        "from":   "@if(greater(length(body('RSS_Tech')), 5), take(body('RSS_Tech'), 5), body('RSS_Tech'))",
+        "select": "@concat('<li><a href=''', item()?['primaryLink'], '''>', item()?['title'], '</a><br/><small style=''color:#8b949e''>', item()?['publishDate'], '</small></li>')"
+      }
+    },
+
+    "Set_varTechHTML": {
+      "type": "SetVariable",
+      "runAfter": { "Select_Tech": ["Succeeded"] },
+      "inputs": {
+        "name":  "varTechHTML",
+        "value": "@{join(body('Select_Tech'), '')}"
+      }
+    },
+
+    "Compose_message": {
+      "type": "Compose",
+      "runAfter": {
+        "Set_varUSHTML":    ["Succeeded", "Skipped"],
+        "Set_varWorldHTML": ["Succeeded", "Skipped"],
+        "Set_varTechHTML":  ["Succeeded", "Skipped"]
+      },
+      "inputs": "@concat('<h2>🌍 Yesterday''s News Briefing</h2><p style=''color:#8b949e''>', formatDateTime(convertTimeZone(utcNow(), 'UTC', 'Eastern Standard Time'), 'dddd, MMMM d, yyyy'), '</p><p style=''color:#6e7681;font-size:12px''>Stories from the past 24 hours</p><h3>🇺🇸 US News</h3><ul>', variables('varUSHTML'), '</ul><h3>🌐 World News</h3><ul>', variables('varWorldHTML'), '</ul><h3>💻 Tech</h3><ul>', variables('varTechHTML'), '</ul><hr/><p style=''color:#6e7681;font-size:11px''>🤖 Chief of Staff · CNN · BBC World · TechCrunch · ', formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm'), 'Z</p>')"
+    },
+
+    "Post_to_Teams": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Compose_message": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_teams",
+          "connectionName": "shared_teams",
+          "operationId":   "PostMessageToConversation"
+        },
+        "parameters": {
+          "poster":            "Flow bot",
+          "location":          "Chat with Flow bot",
+          "body/recipient":    "REPLACE_WITH_YOUR_EMAIL@yourdomain.com",
+          "body/messageBody":  "@{outputs('Compose_message')}",
+          "body/isHtml":       true
+        }
+      }
+    },
+
+    "Error_notification": {
+      "type": "OpenApiConnection",
+      "runAfter": {
+        "Post_to_Teams":   ["Failed", "TimedOut"],
+        "Compose_message": ["Failed"]
+      },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_teams",
+          "connectionName": "shared_teams",
+          "operationId":   "PostMessageToConversation"
+        },
+        "parameters": {
+          "poster":           "Flow bot",
+          "location":         "Chat with Flow bot",
+          "body/recipient":   "REPLACE_WITH_YOUR_EMAIL@yourdomain.com",
+          "body/messageBody": "@concat('⚠️ ChiefOfStaff_NewsBriefing flow failed at ', utcNow())",
+          "body/isHtml":      false
+        }
+      }
+    }
+
+  }
+}

@@ -1,0 +1,290 @@
+{
+  "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "$authentication": { "defaultValue": {}, "type": "SecureObject" },
+    "$connections":     { "defaultValue": {}, "type": "Object" }
+  },
+
+  "triggers": {
+    "Recurrence": {
+      "type": "Recurrence",
+      "recurrence": {
+        "frequency":  "Week",
+        "interval":   1,
+        "timeZone":   "Eastern Standard Time",
+        "startTime":  "2026-03-25T09:00:00",
+        "schedule": {
+          "hours":    ["9"],
+          "minutes":  [0],
+          "weekDays": ["Monday","Tuesday","Wednesday","Thursday","Friday"]
+        }
+      }
+    }
+  },
+
+  "actions": {
+
+    "Init_varTodayStart": {
+      "type": "InitializeVariable",
+      "runAfter": {},
+      "inputs": {
+        "variables": [{
+          "name":  "varTodayStart",
+          "type":  "string",
+          "value": "@concat(formatDateTime(convertTimeZone(startOfDay(convertTimeZone(utcNow(), 'UTC', 'Eastern Standard Time')), 'Eastern Standard Time', 'UTC'), 'yyyy-MM-ddTHH:mm:ss'), 'Z')"
+        }]
+      }
+    },
+
+    "Init_varTodayEnd": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varTodayStart": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varTodayEnd",
+          "type":  "string",
+          "value": "@concat(formatDateTime(convertTimeZone(addHours(startOfDay(convertTimeZone(utcNow(), 'UTC', 'Eastern Standard Time')), 23), 'Eastern Standard Time', 'UTC'), 'yyyy-MM-ddTHH:mm:ss'), 'Z')"
+        }]
+      }
+    },
+
+    "Init_varSince": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varTodayEnd": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varSince",
+          "type":  "string",
+          "value": "@concat(formatDateTime(convertTimeZone(addHours(startOfDay(addDays(convertTimeZone(utcNow(), 'UTC', 'Eastern Standard Time'), -1)), 17), 'Eastern Standard Time', 'UTC'), 'yyyy-MM-ddTHH:mm:ss'), 'Z')"
+        }]
+      }
+    },
+
+    "Init_varCalHTML": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varSince": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varCalHTML",
+          "type":  "string",
+          "value": ""
+        }]
+      }
+    },
+
+    "Init_varEmailHTML": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varCalHTML": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varEmailHTML",
+          "type":  "string",
+          "value": ""
+        }]
+      }
+    },
+
+    "Init_varMentionsHTML": {
+      "type": "InitializeVariable",
+      "runAfter": { "Init_varEmailHTML": ["Succeeded"] },
+      "inputs": {
+        "variables": [{
+          "name":  "varMentionsHTML",
+          "type":  "string",
+          "value": "<li><em>No mentions found in the last 16 hours.</em></li>"
+        }]
+      }
+    },
+
+    "Get_calendar_events": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Init_varMentionsHTML": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_office365",
+          "connectionName": "shared_office365",
+          "operationId":   "GetEventsCalendarView_V3"
+        },
+        "parameters": {
+          "calendarId":       "Calendar",
+          "startDateTimeUtc": "@variables('varTodayStart')",
+          "endDateTimeUtc":   "@variables('varTodayEnd')",
+          "$top":             25,
+          "$orderby":         "start/dateTime asc"
+        }
+      }
+    },
+
+    "Filter_allday": {
+      "type": "Query",
+      "runAfter": { "Get_calendar_events": ["Succeeded"] },
+      "inputs": {
+        "from":  "@body('Get_calendar_events')?['value']",
+        "where": "@not(equals(item()?['isAllDay'], true))"
+      }
+    },
+
+    "Apply_calendar": {
+      "type": "Foreach",
+      "runAfter": { "Filter_allday": ["Succeeded"] },
+      "foreach": "@take(body('Filter_allday'), 6)",
+      "actions": {
+        "Append_cal_item": {
+          "type": "AppendToStringVariable",
+          "inputs": {
+            "name":  "varCalHTML",
+            "value": "@concat('<li><b>', formatDateTime(convertTimeZone(items('Apply_calendar')?['start']?['dateTime'], 'UTC', 'Eastern Standard Time'), 'h:mm tt'), '</b> — ', items('Apply_calendar')?['subject'], ' <small style=''color:#8b949e''>· ', items('Apply_calendar')?['organizer']?['emailAddress']?['name'], '</small></li>')"
+          }
+        }
+      }
+    },
+
+    "Get_emails": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Apply_calendar": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_office365",
+          "connectionName": "shared_office365",
+          "operationId":   "GetEmails_V3"
+        },
+        "parameters": {
+          "folderPath":        "Inbox",
+          "fetchOnlyUnread":   false,
+          "includeAttachments": false,
+          "top":               15,
+          "orderBy":           "receivedDateTime desc"
+        }
+      }
+    },
+
+    "Filter_email_window": {
+      "type": "Query",
+      "runAfter": { "Get_emails": ["Succeeded"] },
+      "inputs": {
+        "from":  "@body('Get_emails')?['value']",
+        "where": "@greaterOrEquals(item()?['receivedDateTime'], variables('varSince'))"
+      }
+    },
+
+    "Apply_emails": {
+      "type": "Foreach",
+      "runAfter": { "Filter_email_window": ["Succeeded"] },
+      "foreach": "@take(body('Filter_email_window'), 5)",
+      "actions": {
+        "Append_email_item": {
+          "type": "AppendToStringVariable",
+          "inputs": {
+            "name":  "varEmailHTML",
+            "value": "@concat('<li><b>', items('Apply_emails')?['from']?['emailAddress']?['name'], '</b>: ', items('Apply_emails')?['subject'], ' <small style=''color:#8b949e''>· ', formatDateTime(convertTimeZone(items('Apply_emails')?['receivedDateTime'], 'UTC', 'Eastern Standard Time'), 'MMM d h:mm tt'), if(equals(items('Apply_emails')?['importance'], 'high'), ' 🔴', ''), '</small></li>')"
+          }
+        }
+      }
+    },
+
+    "Get_channel_messages": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Apply_emails": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_teams",
+          "connectionName": "shared_teams",
+          "operationId":   "GetMessagesFromChannel"
+        },
+        "parameters": {
+          "groupId":    "REPLACE_WITH_YOUR_TEAM_ID",
+          "channelId":  "REPLACE_WITH_YOUR_CHANNEL_ID",
+          "$top":       30
+        }
+      }
+    },
+
+    "Filter_mentions": {
+      "type": "Query",
+      "runAfter": { "Get_channel_messages": ["Succeeded", "Failed"] },
+      "inputs": {
+        "from":  "@if(equals(outputs('Get_channel_messages')?['statusCode'], 200), body('Get_channel_messages')?['value'], createArray())",
+        "where": "@and(contains(toLower(string(item()?['body']?['content'])), 'rebecca'), greaterOrEquals(item()?['lastModifiedDateTime'], variables('varSince')))"
+      }
+    },
+
+    "Apply_mentions": {
+      "type": "Foreach",
+      "runAfter": { "Filter_mentions": ["Succeeded"] },
+      "foreach": "@take(body('Filter_mentions'), 3)",
+      "actions": {
+        "Set_varMentionsHTML_first": {
+          "type": "SetVariable",
+          "runAfter": {},
+          "inputs": {
+            "name":  "varMentionsHTML",
+            "value": ""
+          }
+        },
+        "Append_mention_item": {
+          "type": "AppendToStringVariable",
+          "runAfter": { "Set_varMentionsHTML_first": ["Succeeded"] },
+          "inputs": {
+            "name":  "varMentionsHTML",
+            "value": "@concat('<li><b>', items('Apply_mentions')?['from']?['user']?['displayName'], '</b>: ', substring(replace(string(items('Apply_mentions')?['body']?['content']), '<at>', '@'), 0, 140), ' <small style=''color:#8b949e''>· ', formatDateTime(convertTimeZone(items('Apply_mentions')?['lastModifiedDateTime'], 'UTC', 'Eastern Standard Time'), 'h:mm tt'), '</small></li>')"
+          }
+        }
+      }
+    },
+
+    "Compose_focus": {
+      "type": "Compose",
+      "runAfter": { "Apply_mentions": ["Succeeded"] },
+      "inputs": "@concat('<li>🎯 <b>Prepare:</b> ', if(greater(length(body('Filter_allday')), 0), first(body('Filter_allday'))?['subject'], 'No structured meetings today'), '</li><li>📧 <b>Respond:</b> ', if(greater(length(body('Filter_email_window')), 0), concat(first(body('Filter_email_window'))?['from']?['emailAddress']?['name'], ' — ', first(body('Filter_email_window'))?['subject']), 'Inbox clear'), '</li><li>📊 <b>Today:</b> ', string(length(body('Filter_allday'))), ' meeting(s) · ', string(length(body('Filter_email_window'))), ' email(s) since 5 PM yesterday</li>')"
+    },
+
+    "Compose_message": {
+      "type": "Compose",
+      "runAfter": { "Compose_focus": ["Succeeded"] },
+      "inputs": "@concat('<h2>☀️ Good Morning, Rebecca!</h2><p style=''color:#8b949e''>', formatDateTime(convertTimeZone(utcNow(), 'UTC', 'Eastern Standard Time'), 'dddd, MMMM d, yyyy'), '</p><h3>📅 Today''s Meetings</h3>', if(empty(variables('varCalHTML')), '<p><em>No meetings today.</em></p>', concat('<ul>', variables('varCalHTML'), '</ul>')), '<h3>📧 Inbox Triage <small style=''color:#8b949e''>(since yesterday 5 PM ET)</small></h3>', if(empty(variables('varEmailHTML')), '<p><em>Inbox clear.</em></p>', concat('<ul>', variables('varEmailHTML'), '</ul>')), '<h3>💬 Teams Mentions <small style=''color:#8b949e''>(last 16 hrs)</small></h3><ul>', variables('varMentionsHTML'), '</ul><h3>🎯 Top 3 Focus</h3><ul>', outputs('Compose_focus'), '</ul><hr/><p style=''color:#6e7681;font-size:11px''>🤖 Chief of Staff · ', formatDateTime(utcNow(), 'yyyy-MM-dd HH:mm'), 'Z</p>')"
+    },
+
+    "Post_to_Teams": {
+      "type": "OpenApiConnection",
+      "runAfter": { "Compose_message": ["Succeeded"] },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_teams",
+          "connectionName": "shared_teams",
+          "operationId":   "PostMessageToConversation"
+        },
+        "parameters": {
+          "poster":           "Flow bot",
+          "location":         "Chat with Flow bot",
+          "body/recipient":   "REPLACE_WITH_YOUR_EMAIL@yourdomain.com",
+          "body/messageBody": "@{outputs('Compose_message')}",
+          "body/isHtml":      true
+        }
+      }
+    },
+
+    "Error_notification": {
+      "type": "OpenApiConnection",
+      "runAfter": {
+        "Post_to_Teams":   ["Failed", "TimedOut"],
+        "Compose_message": ["Failed"]
+      },
+      "inputs": {
+        "host": {
+          "apiId":         "/providers/Microsoft.PowerApps/apis/shared_teams",
+          "connectionName": "shared_teams",
+          "operationId":   "PostMessageToConversation"
+        },
+        "parameters": {
+          "poster":           "Flow bot",
+          "location":         "Chat with Flow bot",
+          "body/recipient":   "REPLACE_WITH_YOUR_EMAIL@yourdomain.com",
+          "body/messageBody": "@concat('⚠️ ChiefOfStaff_MorningBriefing flow failed at ', utcNow())",
+          "body/isHtml":      false
+        }
+      }
+    }
+
+  }
+}
