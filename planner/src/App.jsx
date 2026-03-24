@@ -12,6 +12,7 @@ import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
 import { loadTasks, saveTasks, mergeWorkiqTasks } from './utils/storage.js'
+import Archive from './components/Archive.jsx'
 
 const TASKS_URL =
   'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/tasks.json'
@@ -93,12 +94,19 @@ export default function App() {
     ])
   }
 
-  // ── Complete / delete ─────────────────────────────────────────────────
+  // ── Complete / delete / edit ──────────────────────────────────────────
   const handleToggle = (id) =>
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t))
+    setTasks(prev => prev.map(t => {
+      if (t.id !== id) return t
+      const completing = !t.completed
+      return { ...t, completed: completing, completedAt: completing ? new Date().toISOString() : null }
+    }))
 
   const handleDelete = (id) =>
     setTasks(prev => prev.filter(t => t.id !== id))
+
+  const handleEdit = (id, newTitle) =>
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, title: newTitle } : t))
 
   // ── Drag and drop ─────────────────────────────────────────────────────
   const sensors = useSensors(
@@ -192,9 +200,10 @@ export default function App() {
             <Column
               key={col.id}
               column={col}
-              tasks={tasks.filter(t => t.category === col.id)}
+              tasks={tasks.filter(t => t.category === col.id && !t.completed)}
               onToggle={handleToggle}
               onDelete={handleDelete}
+              onEdit={handleEdit}
             />
           ))}
         </div>
@@ -205,6 +214,12 @@ export default function App() {
             : null}
         </DragOverlay>
       </DndContext>
+
+      <Archive
+        tasks={tasks.filter(t => t.completed)}
+        onToggle={handleToggle}
+        onDelete={handleDelete}
+      />
     </div>
   )
 }
