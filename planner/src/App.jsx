@@ -19,6 +19,13 @@ export const COLUMNS = [
   { id: 'this_week',       label: 'This Week',        color: '#3fb950' },
 ]
 
+export const TAGS = [
+  { id: 'trials',          label: 'Trials',          color: '#f0883e' },
+  { id: 'office_client',   label: 'Office Client',   color: '#79c0ff' },
+  { id: 'office_checkout', label: 'Office Checkout', color: '#ff9bce' },
+  { id: 'personal',        label: 'Personal',        color: '#d2a8ff' },
+]
+
 function formatDate() {
   return new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
@@ -52,13 +59,14 @@ export default function App() {
   }, [tasks, lastSync])
 
   // ── Add task ──────────────────────────────────────────────────────────
-  const handleAdd = (title, category) => {
+  const handleAdd = (title, category, tag) => {
     setTasks(prev => [
       ...prev,
       {
         id:        crypto.randomUUID(),
         title,
         category,
+        tag:       tag ?? null,
         source:    'manual',
         dueDate:   null,
         completed: false,
@@ -139,7 +147,7 @@ export default function App() {
     <div className="app">
       <header className="header">
         <div>
-          <h1 className="header-title">Chief of Staff</h1>
+          <h1 className="header-title">Rebecca's Planner</h1>
           <span className="header-date">{formatDate()}</span>
         </div>
         {lastSync && (

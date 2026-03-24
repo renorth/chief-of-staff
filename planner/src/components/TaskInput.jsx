@@ -1,22 +1,24 @@
 import { useState } from 'react'
-import { COLUMNS } from '../App.jsx'
+import { COLUMNS, TAGS } from '../App.jsx'
 
 export default function TaskInput({ onAdd }) {
   const [title,    setTitle]    = useState('')
   const [category, setCategory] = useState('must_do_today')
+  const [tag,      setTag]      = useState(null)
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     const trimmed = title.trim()
     if (!trimmed) return
-    onAdd(trimmed, category)
+    onAdd(trimmed, category, tag)
     setTitle('')
-    // Keep the selected category so rapid-fire entry stays in the same bucket
+    // Keep category + tag selections for rapid entry
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSubmit(e)
+    if (e.key === 'Enter') handleSubmit()
   }
+
+  const toggleTag = (id) => setTag(prev => prev === id ? null : id)
 
   return (
     <div className="input-card">
@@ -29,19 +31,38 @@ export default function TaskInput({ onAdd }) {
         placeholder="Add a task…"
         autoFocus
       />
+
+      {/* Row 1 — category */}
       <div className="input-row">
+        <span className="input-label">Category</span>
         <div className="cat-group">
           {COLUMNS.map(col => (
             <button
               key={col.id}
               type="button"
               className={`cat-btn ${category === col.id ? 'cat-btn--on' : ''}`}
-              style={{
-                '--col-color': col.color,
-              }}
+              style={{ '--col-color': col.color }}
               onClick={() => setCategory(col.id)}
             >
               {col.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Row 2 — tags + add button */}
+      <div className="input-row input-row--tags">
+        <span className="input-label">Tag</span>
+        <div className="cat-group">
+          {TAGS.map(t => (
+            <button
+              key={t.id}
+              type="button"
+              className={`tag-btn ${tag === t.id ? 'tag-btn--on' : ''}`}
+              style={{ '--tag-color': t.color }}
+              onClick={() => toggleTag(t.id)}
+            >
+              {t.label}
             </button>
           ))}
         </div>

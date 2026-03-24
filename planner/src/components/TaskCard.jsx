@@ -1,5 +1,6 @@
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { TAGS } from '../App.jsx'
 
 export default function TaskCard({ task, onToggle, onDelete, overlay = false }) {
   const {
@@ -28,7 +29,8 @@ export default function TaskCard({ task, onToggle, onDelete, overlay = false }) 
     return { label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), urgent: false }
   }
 
-  const due = formatDue(task.dueDate)
+  const due     = formatDue(task.dueDate)
+  const tagMeta = task.tag ? TAGS.find(t => t.id === task.tag) : null
 
   return (
     <div
@@ -60,6 +62,14 @@ export default function TaskCard({ task, onToggle, onDelete, overlay = false }) 
           {due && (
             <span className={`tag tag--due ${due.urgent ? 'tag--urgent' : ''}`}>
               {due.label}
+            </span>
+          )}
+          {tagMeta && (
+            <span
+              className="tag tag--area"
+              style={{ '--tag-color': tagMeta.color }}
+            >
+              {tagMeta.label}
             </span>
           )}
           {task.source === 'workiq' && (
