@@ -77,7 +77,7 @@ export default function App() {
   }, [tasks, lastSync])
 
   // ── Add task ──────────────────────────────────────────────────────────
-  const handleAdd = (title, category, tag) => {
+  const handleAdd = (title, category, tag, dueDate) => {
     setTasks(prev => [
       ...prev,
       {
@@ -86,7 +86,7 @@ export default function App() {
         category,
         tag:       tag ?? null,
         source:    'manual',
-        dueDate:   null,
+        dueDate:   dueDate ?? null,
         completed: false,
         createdAt: new Date().toISOString(),
       },

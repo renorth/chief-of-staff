@@ -5,13 +5,15 @@ export default function TaskInput({ onAdd }) {
   const [title,    setTitle]    = useState('')
   const [category, setCategory] = useState('must_do_today')
   const [tag,      setTag]      = useState(null)
+  const [dueDate,  setDueDate]  = useState('')
 
   const handleSubmit = () => {
     const trimmed = title.trim()
     if (!trimmed) return
-    onAdd(trimmed, category, tag)
+    onAdd(trimmed, category, tag, dueDate || null)
     setTitle('')
-    // Keep category + tag selections for rapid entry
+    setDueDate('')
+    // Keep category + tag for rapid entry
   }
 
   const handleKeyDown = (e) => {
@@ -50,7 +52,7 @@ export default function TaskInput({ onAdd }) {
         </div>
       </div>
 
-      {/* Row 2 — tags + add button */}
+      {/* Row 2 — tags */}
       <div className="input-row input-row--tags">
         <span className="input-label">Tag</span>
         <div className="cat-group">
@@ -66,6 +68,27 @@ export default function TaskInput({ onAdd }) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Row 3 — due date + add */}
+      <div className="input-row input-row--due">
+        <span className="input-label">Due</span>
+        <input
+          className="input-date"
+          type="date"
+          value={dueDate}
+          onChange={e => setDueDate(e.target.value)}
+        />
+        {dueDate && (
+          <button
+            className="btn-clear-date"
+            type="button"
+            onClick={() => setDueDate('')}
+            title="Clear date"
+          >
+            ✕
+          </button>
+        )}
         <button
           className="btn-add"
           type="button"

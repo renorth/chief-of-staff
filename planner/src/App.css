@@ -125,6 +125,7 @@ button { font-family: inherit; }
 }
 
 .input-row--tags { margin-top: 8px; }
+.input-row--due  { margin-top: 8px; }
 
 .input-label {
   font-size:   11px;
@@ -185,6 +186,45 @@ button { font-family: inherit; }
 
 .btn-add:hover:not(:disabled) { background: #388bfd; }
 .btn-add:disabled { opacity: .3; cursor: not-allowed; }
+
+/* Due date input */
+.input-date {
+  font-family:   var(--font);
+  font-size:     12px;
+  color:         var(--text-primary);
+  background:    var(--bg-inset);
+  border:        1px solid var(--border);
+  border-radius: 6px;
+  padding:       4px 10px;
+  cursor:        pointer;
+  transition:    border-color .12s;
+  color-scheme:  dark;
+}
+
+.input-date:focus {
+  outline:      none;
+  border-color: var(--accent);
+}
+
+.input-date::-webkit-calendar-picker-indicator {
+  filter:  invert(0.6);
+  cursor:  pointer;
+  padding: 0;
+}
+
+.btn-clear-date {
+  background:    transparent;
+  border:        none;
+  color:         var(--text-muted);
+  font-size:     11px;
+  cursor:        pointer;
+  padding:       2px 4px;
+  border-radius: 4px;
+  line-height:   1;
+  transition:    color .1s;
+}
+
+.btn-clear-date:hover { color: var(--red); }
 
 /* Tag selector buttons */
 .tag-btn {
