@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'planner/**'
+      - '.github/workflows/deploy-planner.yml'
   workflow_dispatch:   # lets you trigger manually from GitHub UI
 
 permissions:
