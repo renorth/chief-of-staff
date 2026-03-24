@@ -14,9 +14,9 @@ import TaskCard from './components/TaskCard.jsx'
 import { loadTasks, saveTasks } from './utils/storage.js'
 
 export const COLUMNS = [
-  { id: 'must_do_today',   label: 'Must Do Today',   color: '#e5484d' },
-  { id: 'should_do_today', label: 'Should Do Today',  color: '#f76b15' },
-  { id: 'this_week',       label: 'This Week',        color: '#0091ff' },
+  { id: 'must_do_today',   label: 'Must Do Today',   color: '#a371f7' },
+  { id: 'should_do_today', label: 'Should Do Today',  color: '#58a6ff' },
+  { id: 'this_week',       label: 'This Week',        color: '#3fb950' },
 ]
 
 function formatDate() {
