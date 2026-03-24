@@ -116,16 +116,33 @@ def parse_lines(raw: str) -> list[str]:
 
 
 def make_task(title: str, category: str, source: str = "workiq",
-              due_date: str | None = None) -> dict:
+              due_date: str | None = None, tag: str | None = None) -> dict:
     return {
         "id":        str(uuid.uuid5(uuid.NAMESPACE_DNS, f"workiq:{title}")),
         "title":     title,
         "category":  category,
+        "tag":       tag,
         "source":    source,
         "dueDate":   due_date,
         "completed": False,
         "createdAt": datetime.now(timezone.utc).isoformat(),
     }
+
+
+# Keyword → tag mapping. Add patterns here as your M365 data becomes familiar.
+TAG_RULES: list[tuple[list[str], str]] = [
+    (["trial", "trials", "clinical", "study", "patient"], "trials"),
+    (["office client", "client portal", "onboarding"],    "office_client"),
+    (["checkout", "billing", "payment", "cart"],          "office_checkout"),
+    (["personal", "pto", "vacation", "dentist", "dr."],   "personal"),
+]
+
+def infer_tag(title: str) -> str | None:
+    lower = title.lower()
+    for keywords, tag in TAG_RULES:
+        if any(kw in lower for kw in keywords):
+            return tag
+    return None
 
 
 def build_tasks(raw: dict, dry_run: bool) -> list[dict]:
@@ -134,21 +151,25 @@ def build_tasks(raw: dict, dry_run: bool) -> list[dict]:
 
     # Must Do Today: urgent emails + overdue/today action items
     for line in parse_lines(raw.get("emails_urgent", "")):
-        tasks.append(make_task(f"Reply: {line}", "must_do_today", due_date=today_str))
+        title = f"Reply: {line}"
+        tasks.append(make_task(title, "must_do_today", due_date=today_str, tag=infer_tag(title)))
 
     for line in parse_lines(raw.get("actions", "")):
-        tasks.append(make_task(line, "must_do_today", due_date=today_str))
+        tasks.append(make_task(line, "must_do_today", due_date=today_str, tag=infer_tag(line)))
 
     # Should Do Today: today's meetings + standard unread emails
     for line in parse_lines(raw.get("meetings_today", "")):
-        tasks.append(make_task(f"Meeting: {line}", "should_do_today"))
+        title = f"Meeting: {line}"
+        tasks.append(make_task(title, "should_do_today", tag=infer_tag(title)))
 
     for line in parse_lines(raw.get("emails_unread", "")):
-        tasks.append(make_task(f"Review: {line}", "should_do_today"))
+        title = f"Review: {line}"
+        tasks.append(make_task(title, "should_do_today", tag=infer_tag(title)))
 
     # This Week: upcoming meetings
     for line in parse_lines(raw.get("meetings_week", "")):
-        tasks.append(make_task(f"Meeting: {line}", "this_week"))
+        title = f"Meeting: {line}"
+        tasks.append(make_task(title, "this_week", tag=infer_tag(title)))
 
     return tasks
 

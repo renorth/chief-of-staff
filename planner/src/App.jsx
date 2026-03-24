@@ -11,7 +11,10 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks } from './utils/storage.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks } from './utils/storage.js'
+
+const TASKS_URL =
+  'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/tasks.json'
 
 export const COLUMNS = [
   { id: 'must_do_today',   label: 'Must Do Today',   color: '#a371f7' },
@@ -40,15 +43,30 @@ function formatSync(iso) {
 }
 
 export default function App() {
-  const [tasks, setTasks]         = useState([])
-  const [lastSync, setLastSync]   = useState(null)
+  const [tasks, setTasks]           = useState([])
+  const [lastSync, setLastSync]     = useState(null)
   const [activeTask, setActiveTask] = useState(null)
+  const [syncing, setSyncing]       = useState(false)
 
-  // Load from localStorage on mount
+  // Load localStorage then pull latest WorkIQ sync from GitHub
   useEffect(() => {
     const stored = loadTasks()
     setTasks(stored.tasks)
     setLastSync(stored.lastSync)
+
+    setSyncing(true)
+    fetch(`${TASKS_URL}?t=${Date.now()}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(remote => {
+        if (!remote?.tasks?.length) return
+        // Skip if local data is already up-to-date
+        if (stored.lastSync && remote.lastSync && remote.lastSync <= stored.lastSync) return
+        const merged = mergeWorkiqTasks(stored.tasks, remote.tasks)
+        setTasks(merged)
+        if (remote.lastSync) setLastSync(remote.lastSync)
+      })
+      .catch(() => {})   // offline or rate-limited — use localStorage silently
+      .finally(() => setSyncing(false))
   }, [])
 
   // Persist to localStorage whenever tasks change
@@ -150,11 +168,14 @@ export default function App() {
           <h1 className="header-title">Rebecca's Planner</h1>
           <span className="header-date">{formatDate()}</span>
         </div>
-        {lastSync && (
-          <span className="header-sync">
-            M365 synced at {formatSync(lastSync)}
-          </span>
-        )}
+        {syncing
+          ? <span className="header-sync header-sync--loading">Syncing…</span>
+          : lastSync && (
+              <span className="header-sync">
+                M365 synced at {formatSync(lastSync)}
+              </span>
+            )
+        }
       </header>
 
       <TaskInput onAdd={handleAdd} />

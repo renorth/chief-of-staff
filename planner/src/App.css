@@ -80,6 +80,17 @@ button { font-family: inherit; }
   padding:       4px 12px;
 }
 
+.header-sync--loading {
+  color:        var(--text-muted);
+  border-color: var(--border-subtle);
+  animation:    pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+
 /* ─── Task Input Card ────────────────────────────────────────────────────── */
 .input-card {
   background:    var(--surface);
