@@ -36,22 +36,21 @@ export function saveTasks(tasks, lastSync = undefined) {
 }
 
 /**
- * Merge WorkIQ-sourced tasks into the current task list.
+ * Merge remote tasks (WorkIQ or Teams bot) into the current task list.
  *
  * Rules:
  *  - Existing manual tasks are never touched.
- *  - WorkIQ tasks already in the list (matched by id) are updated in place.
- *  - New WorkIQ tasks are appended.
- *  - WorkIQ tasks that no longer appear in the fresh sync are removed
- *    (they were completed or no longer relevant in M365).
+ *  - Remote tasks (workiq / teams) already in the list are updated in place.
+ *  - New remote tasks are appended.
+ *  - Remote tasks that no longer appear in the fresh sync are removed.
  */
 export function mergeWorkiqTasks(existing, incoming) {
   const manual   = existing.filter(t => t.source === 'manual')
   const incomingIds = new Set(incoming.map(t => t.id))
 
-  // Keep WorkIQ tasks still present in the new sync (preserving completed state)
+  // Keep remote tasks still present in the new sync (preserving completed state)
   const retained = existing
-    .filter(t => t.source === 'workiq' && incomingIds.has(t.id))
+    .filter(t => (t.source === 'workiq' || t.source === 'teams') && incomingIds.has(t.id))
     .map(old => {
       const fresh = incoming.find(t => t.id === old.id)
       return { ...fresh, completed: old.completed }   // keep user's tick

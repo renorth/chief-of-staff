@@ -1,0 +1,56 @@
+name: Add Task from Teams Bot
+
+on:
+  repository_dispatch:
+    types: [add-task]
+
+jobs:
+  add-task:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Append task to tasks.json
+        env:
+          TASK_TITLE: ${{ github.event.client_payload.title }}
+          TASK_CATEGORY: ${{ github.event.client_payload.category }}
+          TASK_TAG: ${{ github.event.client_payload.tag }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, uuid, datetime, pathlib
+
+          f = pathlib.Path("planner/data/tasks.json")
+          data = json.loads(f.read_text()) if f.exists() else {"tasks": [], "lastSync": None}
+
+          title    = os.environ.get("TASK_TITLE", "").strip()
+          category = os.environ.get("TASK_CATEGORY", "must_do_today").strip() or "must_do_today"
+          tag      = os.environ.get("TASK_TAG", "").strip() or None
+
+          if not title:
+            print("No title provided — skipping.")
+            raise SystemExit(0)
+
+          task = {
+            "id":        str(uuid.uuid5(uuid.NAMESPACE_DNS, f"teams:{title}")),
+            "title":     title,
+            "category":  category,
+            "tag":       tag,
+            "source":    "teams",
+            "dueDate":   None,
+            "completed": False,
+            "createdAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+          }
+
+          data["tasks"].append(task)
+          f.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+          print(f"Added: {title}")
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name  "Teams Task Bot"
+          git config user.email "bot@chief-of-staff"
+          git add planner/data/tasks.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "task: add '${{ github.event.client_payload.title }}' via Teams"
+          git push
