@@ -267,12 +267,6 @@ export default function App() {
         </DragOverlay>
       </DndContext>
 
-      <Archive
-        tasks={tasks.filter(t => t.completed)}
-        onToggle={handleToggle}
-        onDelete={handleDelete}
-      />
-
       <WorkLog
         items={workLog}
         onAdd={handleWorkLogAdd}
@@ -281,6 +275,12 @@ export default function App() {
         onTagChange={handleWorkLogTagChange}
         onAddNote={handleWorkLogAddNote}
         onDeleteNote={handleWorkLogDeleteNote}
+      />
+
+      <Archive
+        tasks={tasks.filter(t => t.completed)}
+        onToggle={handleToggle}
+        onDelete={handleDelete}
       />
     </div>
   )
