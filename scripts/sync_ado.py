@@ -18,7 +18,7 @@ WIQL = (
     "FROM WorkItems "
     f"WHERE [System.AreaPath] UNDER '{AREA}' "
     "AND [System.State] NOT IN ('Closed', 'Removed') "
-    "AND ([System.AssignedTo] = @Me OR [Custom.PM] = @Me) "
+    "AND ([System.AssignedTo] = @Me OR [Office.Common.PM] = @Me) "
     "ORDER BY [System.ChangedDate] DESC"
 )
 
