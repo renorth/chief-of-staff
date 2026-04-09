@@ -1,9 +1,24 @@
 {
-  "lastSync": "2026-04-09T19:20:21.654501+00:00",
+  "lastSync": "2026-04-09T19:23:46.885727+00:00",
   "items": [
     {
       "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11031987",
       "title": "AI sharing - Update value props across Office Checkout, DIME and OOBE",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11031231",
+      "title": "[Approved] Trial Conversion - Setup Progress Tracker in Win32",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9889282",
+      "title": "Lumos-Dime URL Migration for OCDI Initiative",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/8974067",
+      "title": "Subscription expired Persado String Variant",
       "status": "Active"
     },
     {
@@ -84,6 +99,11 @@
     {
       "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/8895901",
       "title": "Add Defender Identity Theft Monitoring to Existing Subscriber Page in SCOOBE",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9167680",
+      "title": "SC/OOBE value page catered to Perpetual users",
       "status": "Active"
     },
     {
