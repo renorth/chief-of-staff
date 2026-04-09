@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { TAGS } from '../App.jsx'
+import { TAGS } from '../constants.js'
 
 export default function TaskCard({ task, onToggle, onDelete, onEdit, overlay = false }) {
   const [editing, setEditing] = useState(false)

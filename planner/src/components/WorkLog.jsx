@@ -13,7 +13,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { TAGS } from '../App.jsx'
+import { TAGS } from '../constants.js'
 
 const ADO_TAGS = TAGS.filter(t => t.id !== 'personal')
 

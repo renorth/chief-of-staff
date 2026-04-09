@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { COLUMNS, TAGS } from '../App.jsx'
+import { COLUMNS, TAGS } from '../constants.js'
 
 export default function TaskInput({ onAdd }) {
   const [title,    setTitle]    = useState('')

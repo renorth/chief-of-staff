@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { TAGS } from '../App.jsx'
+import { TAGS } from '../constants.js'
 
 function formatCompleted(iso) {
   if (!iso) return ''

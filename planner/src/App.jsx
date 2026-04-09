@@ -14,25 +14,13 @@ import TaskCard from './components/TaskCard.jsx'
 import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
+import { COLUMNS, TAGS } from './constants.js'
 
 const TASKS_URL =
   'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/tasks.json'
 
 const ADO_ITEMS_URL =
   'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/ado-items.json'
-
-export const COLUMNS = [
-  { id: 'must_do_today',   label: 'Must Do Today',   color: '#a371f7' },
-  { id: 'should_do_today', label: 'Should Do Today',  color: '#58a6ff' },
-  { id: 'this_week',       label: 'This Week',        color: '#3fb950' },
-]
-
-export const TAGS = [
-  { id: 'trials',          label: 'Trials',          color: '#e040fb' },
-  { id: 'office_client',   label: 'Office Client',   color: '#79c0ff' },
-  { id: 'office_checkout', label: 'Office Checkout', color: '#ff9bce' },
-  { id: 'personal',        label: 'Personal',        color: '#d2a8ff' },
-]
 
 function formatDate() {
   return new Date().toLocaleDateString('en-US', {
