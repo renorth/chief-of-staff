@@ -26,12 +26,15 @@ function todayLabel() {
 }
 
 // Card content — used both inline and in DragOverlay
+const MAX_NOTES = 5
+
 function AdoCard({
   item, isOpen, onToggle,
   onDelete, onStatusChange, onTagChange, onAddNote, onDeleteNote,
   dragHandleProps = {}, overlay = false,
 }) {
-  const [noteText, setNoteText] = useState('')
+  const [noteText, setNoteText]   = useState('')
+  const [showAll, setShowAll]     = useState(false)
   const tagDef = TAGS.find(t => t.id === item.tag)
 
   const handleLogNote = () => {
@@ -104,21 +107,6 @@ function AdoCard({
             </div>
           </div>
 
-          {item.notes.length === 0 && (
-            <p className="worklog-notes-empty">No notes yet.</p>
-          )}
-          {item.notes.slice().reverse().map(note => (
-            <div key={note.id} className="worklog-note">
-              <span className="worklog-note-date">{note.date}</span>
-              <span className="worklog-note-text">{note.text}</span>
-              <button
-                className="btn-icon btn-icon--delete"
-                onClick={() => onDeleteNote(item.id, note.id)}
-                title="Delete note"
-              >✕</button>
-            </div>
-          ))}
-
           <div className="worklog-note-add">
             <span className="worklog-note-date worklog-note-date--today">{todayLabel()}</span>
             <textarea
@@ -137,6 +125,37 @@ function AdoCard({
               Log
             </button>
           </div>
+
+          {item.notes.length === 0 && (
+            <p className="worklog-notes-empty">No notes yet.</p>
+          )}
+          {(() => {
+            const sorted = item.notes.slice().reverse()
+            const visible = showAll ? sorted : sorted.slice(0, MAX_NOTES)
+            return (
+              <>
+                {visible.map(note => (
+                  <div key={note.id} className="worklog-note">
+                    <span className="worklog-note-date">{note.date}</span>
+                    <span className="worklog-note-text">{note.text}</span>
+                    <button
+                      className="btn-icon btn-icon--delete"
+                      onClick={() => onDeleteNote(item.id, note.id)}
+                      title="Delete note"
+                    >✕</button>
+                  </div>
+                ))}
+                {sorted.length > MAX_NOTES && (
+                  <button
+                    className="worklog-see-all"
+                    onClick={() => setShowAll(s => !s)}
+                  >
+                    {showAll ? 'Show less' : `See all ${sorted.length} notes`}
+                  </button>
+                )}
+              </>
+            )
+          })()}
         </div>
       )}
     </div>
