@@ -39,9 +39,9 @@ jobs:
           query    = {
               'query': (
                   "SELECT [System.Id] FROM WorkItems "
-                  f"WHERE [System.AssignedTo] = @Me "
-                  f"AND [System.AreaPath] UNDER '{area}' "
+                  f"WHERE [System.AreaPath] UNDER '{area}' "
                   "AND [System.State] NOT IN ('Closed','Removed') "
+                  "AND ([System.AssignedTo] = @Me OR [Custom.PM] = @Me) "
                   "ORDER BY [System.ChangedDate] DESC"
               )
           }
