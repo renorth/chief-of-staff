@@ -1,6 +1,11 @@
 {
-  "lastSync": "2026-04-09T18:19:17.411615+00:00",
+  "lastSync": "2026-04-09T19:20:21.654501+00:00",
   "items": [
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11031987",
+      "title": "AI sharing - Update value props across Office Checkout, DIME and OOBE",
+      "status": "Active"
+    },
     {
       "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11385414",
       "title": "3mo Free offer - Rogers",
@@ -34,11 +39,6 @@
     {
       "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10665512",
       "title": "Trial Confirmation Value Page in SC/OOBE",
-      "status": "Active"
-    },
-    {
-      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10712277",
-      "title": "Trial Setup Status Tracker in Win32",
       "status": "Active"
     },
     {
