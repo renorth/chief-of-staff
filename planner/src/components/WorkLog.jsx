@@ -227,7 +227,7 @@ export default function WorkLog({
             <div className="worklog-add-row">
               <input
                 className="worklog-input"
-                placeholder="ADO # or URL (optional)"
+                placeholder="ADO #"
                 value={form.adoId}
                 onChange={e => setForm(f => ({ ...f, adoId: e.target.value }))}
               />
