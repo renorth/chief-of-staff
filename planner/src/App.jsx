@@ -11,7 +11,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId } from './utils/storage.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
 import { COLUMNS, TAGS } from './constants.js'
@@ -56,7 +56,7 @@ export default function App() {
         if (!remote?.tasks?.length) return
         // Skip if local data is already up-to-date
         if (stored.lastSync && remote.lastSync && remote.lastSync <= stored.lastSync) return
-        const merged = mergeWorkiqTasks(stored.tasks, remote.tasks)
+        const merged = mergeWorkiqTasks(stored.tasks, remote.tasks, loadDeletedTaskIds())
         setTasks(merged)
         if (remote.lastSync) setLastSync(remote.lastSync)
       })
@@ -118,7 +118,11 @@ export default function App() {
     }))
 
   const handleDelete = (id) =>
-    setTasks(prev => prev.filter(t => t.id !== id))
+    setTasks(prev => {
+      const task = prev.find(t => t.id === id)
+      if (task?.source === 'workiq' || task?.source === 'teams') saveDeletedTaskId(id)
+      return prev.filter(t => t.id !== id)
+    })
 
   const handleEdit = (id, newTitle) =>
     setTasks(prev => prev.map(t => t.id === id ? { ...t, title: newTitle } : t))

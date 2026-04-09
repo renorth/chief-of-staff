@@ -117,17 +117,37 @@ export function mergeAdoItems(existing, incoming, deletedIds = new Set()) {
 
 // ── Tasks ─────────────────────────────────────────────────────────────────────
 
+const DELETED_TASK_KEY = 'cos_deleted_task_ids_v1'
+
+export function loadDeletedTaskIds() {
+  try {
+    const raw = localStorage.getItem(DELETED_TASK_KEY)
+    return raw ? new Set(JSON.parse(raw)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+export function saveDeletedTaskId(id) {
+  if (!id) return
+  try {
+    const existing = loadDeletedTaskIds()
+    existing.add(id)
+    localStorage.setItem(DELETED_TASK_KEY, JSON.stringify([...existing]))
+  } catch {}
+}
+
 /**
  * Merge remote tasks (WorkIQ or Teams bot) into the current task list.
  *
  * Rules:
  *  - Existing manual tasks are never touched.
  *  - Remote tasks (workiq / teams) already in the list are updated in place.
- *  - New remote tasks are appended.
+ *  - New remote tasks are appended, unless permanently deleted by user.
  *  - Remote tasks that no longer appear in the fresh sync are removed.
  */
-export function mergeWorkiqTasks(existing, incoming) {
-  const manual   = existing.filter(t => t.source === 'manual')
+export function mergeWorkiqTasks(existing, incoming, deletedIds = new Set()) {
+  const manual      = existing.filter(t => t.source === 'manual')
   const incomingIds = new Set(incoming.map(t => t.id))
 
   // Keep remote tasks still present in the new sync (preserving completed state)
@@ -139,7 +159,7 @@ export function mergeWorkiqTasks(existing, incoming) {
     })
 
   const retainedIds = new Set(retained.map(t => t.id))
-  const added       = incoming.filter(t => !retainedIds.has(t.id))
+  const added       = incoming.filter(t => !retainedIds.has(t.id) && !deletedIds.has(t.id))
 
   return [...manual, ...retained, ...added]
 }
