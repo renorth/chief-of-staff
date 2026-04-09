@@ -26,7 +26,7 @@ export default function WorkLog({
   onAddNote,
   onDeleteNote,
 }) {
-  const [open, setOpen]           = useState(false)
+  const [open, setOpen]           = useState(true)
   const [openItems, setOpenItems] = useState({})
   const [noteText, setNoteText]   = useState({})   // itemId → draft text
   const [form, setForm]           = useState({ adoId: '', title: '', status: 'Active', tag: null })

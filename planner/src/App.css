@@ -25,7 +25,7 @@
   --shadow-sm:      0 1px 3px rgba(0,0,0,.4);
   --shadow-md:      0 4px 16px rgba(0,0,0,.5);
   --shadow-drag:    0 14px 36px rgba(0,0,0,.7);
-  --font: 'Aptos', 'Aptos Display', 'Segoe UI', Inter, -apple-system,
+  --font: 'Roboto', 'Segoe UI', Inter, -apple-system,
           BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
 }
 
@@ -58,7 +58,7 @@ button { font-family: inherit; }
 }
 
 .header-title {
-  font-size:      20px;
+  font-size: 21px;
   font-weight:    600;
   letter-spacing: -.3px;
   color:          var(--text-primary);
@@ -66,13 +66,13 @@ button { font-family: inherit; }
 
 .header-date {
   display:     block;
-  font-size:   13px;
+  font-size: 14px;
   color:       var(--text-secondary);
   margin-top:  4px;
 }
 
 .header-sync {
-  font-size:     12px;
+  font-size: 13px;
   color:         var(--text-secondary);
   background:    var(--bg-subtle);
   border:        1px solid var(--border);
@@ -105,7 +105,7 @@ button { font-family: inherit; }
   width:         100%;
   border:        none;
   outline:       none;
-  font-size:     14px;
+  font-size: 15px;
   font-family:   var(--font);
   color:         var(--text-primary);
   background:    transparent;
@@ -128,7 +128,7 @@ button { font-family: inherit; }
 .input-row--due  { margin-top: 8px; }
 
 .input-label {
-  font-size:   11px;
+  font-size: 12px;
   font-weight: 600;
   color:       var(--text-muted);
   text-transform: uppercase;
@@ -149,7 +149,7 @@ button { font-family: inherit; }
   padding:       4px 13px;
   border-radius: 20px;
   border:        1px solid var(--col-color, #888);
-  font-size:     12px;
+  font-size: 13px;
   font-weight:   500;
   color:         var(--col-color, #888);
   background:    transparent;
@@ -177,7 +177,7 @@ button { font-family: inherit; }
   color:         #fff;
   border:        none;
   border-radius: 6px;
-  font-size:     13px;
+  font-size: 14px;
   font-weight:   500;
   cursor:        pointer;
   transition:    background .12s, opacity .12s;
@@ -190,7 +190,7 @@ button { font-family: inherit; }
 /* Due date input */
 .input-date {
   font-family:   var(--font);
-  font-size:     12px;
+  font-size: 13px;
   color:         var(--text-primary);
   background:    var(--bg-inset);
   border:        1px solid var(--border);
@@ -216,7 +216,7 @@ button { font-family: inherit; }
   background:    transparent;
   border:        none;
   color:         var(--text-muted);
-  font-size:     11px;
+  font-size: 12px;
   cursor:        pointer;
   padding:       2px 4px;
   border-radius: 4px;
@@ -231,7 +231,7 @@ button { font-family: inherit; }
   padding:       3px 11px;
   border-radius: 4px;
   border:        1px solid var(--border);
-  font-size:     11.5px;
+  font-size: 12.5px;
   font-weight:   500;
   color:         var(--text-secondary);
   background:    transparent;
@@ -285,7 +285,7 @@ button { font-family: inherit; }
 }
 
 .column-title {
-  font-size:      11px;
+  font-size: 12px;
   font-weight:    600;
   text-transform: uppercase;
   letter-spacing: .7px;
@@ -295,7 +295,7 @@ button { font-family: inherit; }
 .column-counts { display: flex; gap: 5px; align-items: center; }
 
 .badge {
-  font-size:     11px;
+  font-size: 12px;
   font-weight:   600;
   border-radius: 20px;
   padding:       1px 7px;
@@ -318,7 +318,7 @@ button { font-family: inherit; }
 
 .column-empty {
   text-align:  center;
-  font-size:   12px;
+  font-size: 13px;
   color:       var(--text-muted);
   padding:     28px 0;
   user-select: none;
@@ -358,7 +358,7 @@ button { font-family: inherit; }
 /* Drag handle */
 .drag-handle {
   flex-shrink: 0;
-  font-size:   15px;
+  font-size: 16px;
   color:       var(--border);
   cursor:      grab;
   padding-top: 1px;
@@ -377,7 +377,7 @@ button { font-family: inherit; }
 
 .task-title {
   display:     block;
-  font-size:   13.5px;
+  font-size: 14.5px;
   line-height: 1.45;
   color:       var(--text-primary);
   word-break:  break-word;
@@ -397,7 +397,7 @@ button { font-family: inherit; }
 
 .tag {
   display:       inline-block;
-  font-size:     10.5px;
+  font-size: 11.5px;
   font-weight:   500;
   border-radius: 4px;
   padding:       1px 6px;
@@ -464,7 +464,7 @@ button { font-family: inherit; }
   border-radius: 4px;
   color:       var(--text-primary);
   font-family: var(--font);
-  font-size:   13.5px;
+  font-size: 14.5px;
   padding:     2px 6px;
   outline:     none;
   caret-color: var(--accent);
@@ -486,7 +486,7 @@ button { font-family: inherit; }
   height:          22px;
   border:          none;
   border-radius:   5px;
-  font-size:       12px;
+  font-size: 13px;
   cursor:          pointer;
   display:         flex;
   align-items:     center;
@@ -520,14 +520,14 @@ button { font-family: inherit; }
 }
 
 .archive-toggle-label {
-  font-size:   13px;
+  font-size: 14px;
   font-weight: 600;
   color:       var(--text-secondary);
   letter-spacing: .2px;
 }
 
 .archive-count {
-  font-size:     11px;
+  font-size: 12px;
   color:         var(--text-muted);
   background:    var(--bg-subtle);
   border:        1px solid var(--border-subtle);
@@ -566,14 +566,14 @@ button { font-family: inherit; }
 .archive-group-header:hover { background: var(--bg-subtle); }
 
 .archive-group-name {
-  font-size:   13px;
+  font-size: 14px;
   font-weight: 600;
   color:       var(--text-primary);
   margin-left: 6px;
 }
 
 .archive-group-count {
-  font-size:     11px;
+  font-size: 12px;
   font-weight:   600;
   color:         var(--tag-color);
   background:    color-mix(in srgb, var(--tag-color) 12%, transparent);
@@ -600,7 +600,7 @@ button { font-family: inherit; }
 
 .archive-item-title {
   flex:            1;
-  font-size:       13px;
+  font-size: 14px;
   color:           var(--text-secondary);
   text-decoration: line-through;
   min-width:       0;
@@ -610,7 +610,7 @@ button { font-family: inherit; }
 }
 
 .archive-item-date {
-  font-size:   11px;
+  font-size: 12px;
   color:       var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
@@ -652,7 +652,7 @@ button { font-family: inherit; }
 
 .worklog-input {
   font-family:   var(--font);
-  font-size:     13px;
+  font-size: 14px;
   color:         var(--text-primary);
   background:    var(--bg-inset);
   border:        1px solid var(--border);
@@ -670,7 +670,7 @@ button { font-family: inherit; }
 
 .worklog-status-select {
   font-family:   var(--font);
-  font-size:     12px;
+  font-size: 13px;
   color:         var(--text-secondary);
   background:    var(--bg-inset);
   border:        1px solid var(--border);
@@ -702,12 +702,12 @@ button { font-family: inherit; }
 
 .worklog-chevron {
   color:       var(--text-muted);
-  font-size:   11px;
+  font-size: 12px;
   flex-shrink: 0;
 }
 
 .worklog-ado-id {
-  font-size:     11px;
+  font-size: 12px;
   font-weight:   600;
   color:         var(--accent);
   background:    rgba(88,166,255,.1);
@@ -722,14 +722,14 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 
 .worklog-item-title {
   flex:        1;
-  font-size:   13.5px;
+  font-size: 14.5px;
   font-weight: 500;
   color:       var(--text-primary);
   min-width:   0;
 }
 
 .worklog-note-count {
-  font-size:   11px;
+  font-size: 12px;
   color:       var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
@@ -738,7 +738,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 /* Status badge/select on item header */
 .worklog-status {
   font-family:   var(--font);
-  font-size:     11px;
+  font-size: 12px;
   font-weight:   600;
   border-radius: 20px;
   padding:       3px 10px;
@@ -768,7 +768,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 }
 
 .worklog-tag-label {
-  font-size:      11px;
+  font-size: 12px;
   font-weight:    600;
   color:          var(--text-muted);
   text-transform: uppercase;
@@ -788,7 +788,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 }
 
 .worklog-notes-empty {
-  font-size:  12px;
+  font-size: 13px;
   color:      var(--text-muted);
   font-style: italic;
 }
@@ -804,7 +804,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .worklog-note:last-of-type { border-bottom: none; }
 
 .worklog-note-date {
-  font-size:   11px;
+  font-size: 12px;
   font-weight: 600;
   color:       var(--text-muted);
   white-space: nowrap;
@@ -817,7 +817,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 
 .worklog-note-text {
   flex:       1;
-  font-size:  13px;
+  font-size: 14px;
   color:      var(--text-secondary);
   line-height: 1.5;
   white-space: pre-wrap;
@@ -834,7 +834,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .worklog-textarea {
   flex:        1;
   font-family: var(--font);
-  font-size:   13px;
+  font-size: 14px;
   color:       var(--text-primary);
   background:  var(--bg-inset);
   border:      1px solid var(--border);
@@ -851,7 +851,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .worklog-textarea:focus        { border-color: var(--accent); }
 
 .worklog-empty {
-  font-size:  12px;
+  font-size: 13px;
   color:      var(--text-muted);
   text-align: center;
   padding:    12px 0 4px;
@@ -859,7 +859,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 
 .btn-add--sm {
   padding:   4px 12px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
