@@ -15,6 +15,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { TAGS } from '../App.jsx'
 
+const ADO_TAGS = TAGS.filter(t => t.id !== 'personal')
+
 export const STATUSES = [
   'Active', 'In Progress', 'In Review', 'At Risk', 'Blocked', 'Resolved', 'Closed',
 ]
@@ -35,7 +37,7 @@ function AdoCard({
 }) {
   const [noteText, setNoteText]   = useState('')
   const [showAll, setShowAll]     = useState(false)
-  const tagDef = TAGS.find(t => t.id === item.tag)
+  const tagDef = ADO_TAGS.find(t => t.id === item.tag)
 
   const handleLogNote = () => {
     if (!noteText.trim()) return
@@ -94,7 +96,7 @@ function AdoCard({
           <div className="worklog-tag-row">
             <span className="worklog-tag-label">Area</span>
             <div className="cat-group">
-              {TAGS.map(tag => (
+              {ADO_TAGS.map(tag => (
                 <button
                   key={tag.id}
                   className={`tag-btn${item.tag === tag.id ? ' tag-btn--on' : ''}`}
@@ -214,7 +216,7 @@ export default function WorkLog({
     .filter(g => g.items.length > 0)
 
   // Only show filter buttons for tags actually present
-  const presentTags = TAGS.filter(t => items.some(i => i.tag === t.id))
+  const presentTags = ADO_TAGS.filter(t => items.some(i => i.tag === t.id))
 
   const activeItem = activeId ? items.find(i => i.id === activeId) : null
 
@@ -272,7 +274,7 @@ export default function WorkLog({
             <div className="worklog-add-row worklog-add-row--tags">
               <span className="input-label">Area</span>
               <div className="cat-group">
-                {TAGS.map(tag => (
+                {ADO_TAGS.map(tag => (
                   <button
                     key={tag.id}
                     className={`tag-btn${form.tag === tag.id ? ' tag-btn--on' : ''}`}
