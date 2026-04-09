@@ -709,8 +709,8 @@ button { font-family: inherit; }
 .worklog-ado-id {
   font-size: 12px;
   font-weight:   600;
-  color:         #79c0ff;
-  background:    rgba(121,192,255,.1);
+  color:         #cae8ff;
+  background:    rgba(202,232,255,.08);
   border-radius: 4px;
   padding:       2px 7px;
   white-space:   nowrap;
