@@ -1,14 +1,22 @@
 import { useState } from 'react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { TAGS } from '../App.jsx'
 
 export const STATUSES = [
-  'Active',
-  'In Progress',
-  'In Review',
-  'At Risk',
-  'Blocked',
-  'Resolved',
-  'Closed',
+  'Active', 'In Progress', 'In Review', 'At Risk', 'Blocked', 'Resolved', 'Closed',
 ]
 
 function todayLabel() {
@@ -17,22 +25,161 @@ function todayLabel() {
   })
 }
 
+// Card content — used both inline and in DragOverlay
+function AdoCard({
+  item, isOpen, onToggle,
+  onDelete, onStatusChange, onTagChange, onAddNote, onDeleteNote,
+  dragHandleProps = {}, overlay = false,
+}) {
+  const [noteText, setNoteText] = useState('')
+  const tagDef = TAGS.find(t => t.id === item.tag)
+
+  const handleLogNote = () => {
+    if (!noteText.trim()) return
+    onAddNote(item.id, noteText.trim())
+    setNoteText('')
+  }
+
+  return (
+    <div className={`worklog-item${overlay ? ' worklog-item--overlay' : ''}`}>
+      <div className="worklog-item-header" onClick={onToggle}>
+        <span
+          className="drag-handle worklog-drag"
+          {...dragHandleProps}
+          onClick={e => e.stopPropagation()}
+        >
+          ⠿
+        </span>
+        <span className="worklog-chevron">{isOpen ? '▾' : '▸'}</span>
+
+        {item.adoId && (
+          item.adoId.startsWith('http')
+            ? <a className="worklog-ado-id" href={item.adoId} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}>ADO ↗</a>
+            : <span className="worklog-ado-id">#{item.adoId}</span>
+        )}
+
+        <span className="worklog-item-title">{item.title}</span>
+
+        {tagDef && (
+          <span className="tag tag--area" style={{ '--tag-color': tagDef.color }}>
+            {tagDef.label}
+          </span>
+        )}
+
+        <select
+          className={`worklog-status worklog-status--${item.status.toLowerCase().replace(/\s+/g, '-')}`}
+          value={item.status}
+          onClick={e => e.stopPropagation()}
+          onChange={e => onStatusChange(item.id, e.target.value)}
+        >
+          {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+
+        <span className="worklog-note-count">
+          {item.notes.length} note{item.notes.length !== 1 ? 's' : ''}
+        </span>
+
+        <button
+          className="btn-icon btn-icon--delete"
+          onClick={e => { e.stopPropagation(); onDelete(item.id) }}
+          title="Delete ADO item"
+        >✕</button>
+      </div>
+
+      {isOpen && !overlay && (
+        <div className="worklog-notes">
+          <div className="worklog-tag-row">
+            <span className="worklog-tag-label">Area</span>
+            <div className="cat-group">
+              {TAGS.map(tag => (
+                <button
+                  key={tag.id}
+                  className={`tag-btn${item.tag === tag.id ? ' tag-btn--on' : ''}`}
+                  style={{ '--tag-color': tag.color }}
+                  onClick={() => onTagChange(item.id, item.tag === tag.id ? null : tag.id)}
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {item.notes.length === 0 && (
+            <p className="worklog-notes-empty">No notes yet.</p>
+          )}
+          {item.notes.slice().reverse().map(note => (
+            <div key={note.id} className="worklog-note">
+              <span className="worklog-note-date">{note.date}</span>
+              <span className="worklog-note-text">{note.text}</span>
+              <button
+                className="btn-icon btn-icon--delete"
+                onClick={() => onDeleteNote(item.id, note.id)}
+                title="Delete note"
+              >✕</button>
+            </div>
+          ))}
+
+          <div className="worklog-note-add">
+            <span className="worklog-note-date worklog-note-date--today">{todayLabel()}</span>
+            <textarea
+              className="worklog-textarea"
+              placeholder="Add a note…"
+              rows={2}
+              value={noteText}
+              onChange={e => setNoteText(e.target.value)}
+            />
+            <button
+              className="btn-add btn-add--sm"
+              onClick={handleLogNote}
+              disabled={!noteText.trim()}
+            >
+              Log
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Sortable wrapper
+function SortableAdoItem({ item, isOpen, onToggle, ...handlers }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.25 : 1,
+  }
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <AdoCard
+        item={item}
+        isOpen={isOpen}
+        onToggle={onToggle}
+        dragHandleProps={{ ...attributes, ...listeners }}
+        {...handlers}
+      />
+    </div>
+  )
+}
+
 export default function WorkLog({
-  items,
-  onAdd,
-  onDelete,
-  onStatusChange,
-  onTagChange,
-  onAddNote,
-  onDeleteNote,
+  items, onAdd, onDelete, onStatusChange, onTagChange, onAddNote, onDeleteNote, onReorder,
 }) {
   const [open, setOpen]           = useState(true)
   const [openItems, setOpenItems] = useState({})
-  const [noteText, setNoteText]   = useState({})   // itemId → draft text
+  const [filterTag, setFilterTag] = useState(null)   // null = All
+  const [activeId, setActiveId]   = useState(null)
   const [form, setForm]           = useState({ adoId: '', title: '', status: 'Active', tag: null })
 
-  const toggleItem = (id) =>
-    setOpenItems(prev => ({ ...prev, [id]: !prev[id] }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+  )
+
+  const toggleItem = id => setOpenItems(prev => ({ ...prev, [id]: !prev[id] }))
 
   const handleAdd = () => {
     if (!form.title.trim()) return
@@ -40,28 +187,42 @@ export default function WorkLog({
     setForm({ adoId: '', title: '', status: 'Active', tag: null })
   }
 
-  const handleLogNote = (itemId) => {
-    const text = noteText[itemId]?.trim()
-    if (!text) return
-    onAddNote(itemId, text)
-    setNoteText(prev => ({ ...prev, [itemId]: '' }))
+  // Filter then group by STATUSES order
+  const filtered = filterTag ? items.filter(i => i.tag === filterTag) : items
+  const groups = STATUSES
+    .map(status => ({ status, items: filtered.filter(i => i.status === status) }))
+    .filter(g => g.items.length > 0)
+
+  // Only show filter buttons for tags actually present
+  const presentTags = TAGS.filter(t => items.some(i => i.tag === t.id))
+
+  const activeItem = activeId ? items.find(i => i.id === activeId) : null
+
+  const handleDragStart = ({ active }) => setActiveId(active.id)
+
+  const handleDragEnd = ({ active, over }) => {
+    setActiveId(null)
+    if (!over || active.id === over.id) return
+    const a = items.find(i => i.id === active.id)
+    const o = items.find(i => i.id === over.id)
+    // Only reorder within same status group
+    if (!a || !o || a.status !== o.status) return
+    onReorder(active.id, over.id)
   }
+
+  const cardHandlers = { onDelete, onStatusChange, onTagChange, onAddNote, onDeleteNote }
 
   return (
     <div className="worklog">
       <button className="archive-toggle" onClick={() => setOpen(o => !o)}>
-        <span className="archive-toggle-label">
-          {open ? '▾' : '▸'} ADO Work Log
-        </span>
-        <span className="archive-count">
-          {items.length} item{items.length !== 1 ? 's' : ''}
-        </span>
+        <span className="archive-toggle-label">{open ? '▾' : '▸'} ADO Work Log</span>
+        <span className="archive-count">{items.length} item{items.length !== 1 ? 's' : ''}</span>
       </button>
 
       {open && (
         <div className="worklog-body">
 
-          {/* ── Add ADO form ── */}
+          {/* ── Add form ── */}
           <div className="worklog-add">
             <div className="worklog-add-row">
               <input
@@ -84,11 +245,7 @@ export default function WorkLog({
               >
                 {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
-              <button
-                className="btn-add"
-                onClick={handleAdd}
-                disabled={!form.title.trim()}
-              >
+              <button className="btn-add" onClick={handleAdd} disabled={!form.title.trim()}>
                 Add
               </button>
             </div>
@@ -109,143 +266,80 @@ export default function WorkLog({
             </div>
           </div>
 
+          {/* ── Filter bar ── */}
+          {presentTags.length > 0 && (
+            <div className="worklog-filter-bar">
+              <span className="worklog-tag-label">Filter</span>
+              <button
+                className={`tag-btn${filterTag === null ? ' tag-btn--on' : ''}`}
+                style={{ '--tag-color': '#8b949e' }}
+                onClick={() => setFilterTag(null)}
+              >
+                All
+              </button>
+              {presentTags.map(tag => (
+                <button
+                  key={tag.id}
+                  className={`tag-btn${filterTag === tag.id ? ' tag-btn--on' : ''}`}
+                  style={{ '--tag-color': tag.color }}
+                  onClick={() => setFilterTag(f => f === tag.id ? null : tag.id)}
+                >
+                  {tag.label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {items.length === 0 && (
             <p className="worklog-empty">No ADO items yet.</p>
           )}
+          {filtered.length === 0 && items.length > 0 && (
+            <p className="worklog-empty">No items match this filter.</p>
+          )}
 
-          {/* ── ADO entries ── */}
-          {items.map(item => {
-            const tagDef = TAGS.find(t => t.id === item.tag)
-            return (
-              <div key={item.id} className="worklog-item">
-
-                {/* Header row */}
-                <div
-                  className="worklog-item-header"
-                  onClick={() => toggleItem(item.id)}
-                >
-                  <span className="worklog-chevron">
-                    {openItems[item.id] ? '▾' : '▸'}
-                  </span>
-
-                  {item.adoId && (
-                    item.adoId.startsWith('http')
-                      ? <a
-                          className="worklog-ado-id"
-                          href={item.adoId}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={e => e.stopPropagation()}
-                        >
-                          ADO ↗
-                        </a>
-                      : <span className="worklog-ado-id">#{item.adoId}</span>
-                  )}
-
-                  <span className="worklog-item-title">{item.title}</span>
-
-                  {tagDef && (
-                    <span
-                      className="tag tag--area"
-                      style={{ '--tag-color': tagDef.color }}
-                    >
-                      {tagDef.label}
-                    </span>
-                  )}
-
-                  <select
-                    className={`worklog-status worklog-status--${item.status.toLowerCase().replace(/\s+/g, '-')}`}
-                    value={item.status}
-                    onClick={e => e.stopPropagation()}
-                    onChange={e => onStatusChange(item.id, e.target.value)}
-                  >
-                    {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-
-                  <span className="worklog-note-count">
-                    {item.notes.length} note{item.notes.length !== 1 ? 's' : ''}
-                  </span>
-
-                  <button
-                    className="btn-icon btn-icon--delete"
-                    onClick={e => { e.stopPropagation(); onDelete(item.id) }}
-                    title="Delete ADO item"
-                  >
-                    ✕
-                  </button>
+          {/* ── Status groups with drag ── */}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            {groups.map(group => (
+              <div key={group.status} className="worklog-group">
+                <div className={`worklog-group-header worklog-group-header--${group.status.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <span className="worklog-group-label">{group.status}</span>
+                  <span className="worklog-group-count">{group.items.length}</span>
                 </div>
-
-                {/* Notes panel */}
-                {openItems[item.id] && (
-                  <div className="worklog-notes">
-
-                    {/* Tag selector */}
-                    <div className="worklog-tag-row">
-                      <span className="worklog-tag-label">Area</span>
-                      <div className="cat-group">
-                        {TAGS.map(tag => (
-                          <button
-                            key={tag.id}
-                            className={`tag-btn${item.tag === tag.id ? ' tag-btn--on' : ''}`}
-                            style={{ '--tag-color': tag.color }}
-                            onClick={() => onTagChange(item.id, item.tag === tag.id ? null : tag.id)}
-                          >
-                            {tag.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Existing notes — newest first */}
-                    {item.notes.length === 0 && (
-                      <p className="worklog-notes-empty">No notes yet.</p>
-                    )}
-                    {item.notes
-                      .slice()
-                      .reverse()
-                      .map(note => (
-                        <div key={note.id} className="worklog-note">
-                          <span className="worklog-note-date">{note.date}</span>
-                          <span className="worklog-note-text">{note.text}</span>
-                          <button
-                            className="btn-icon btn-icon--delete"
-                            onClick={() => onDeleteNote(item.id, note.id)}
-                            title="Delete note"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))
-                    }
-
-                    {/* Add note row */}
-                    <div className="worklog-note-add">
-                      <span className="worklog-note-date worklog-note-date--today">
-                        {todayLabel()}
-                      </span>
-                      <textarea
-                        className="worklog-textarea"
-                        placeholder="Add a note…"
-                        rows={2}
-                        value={noteText[item.id] ?? ''}
-                        onChange={e =>
-                          setNoteText(prev => ({ ...prev, [item.id]: e.target.value }))
-                        }
-                      />
-                      <button
-                        className="btn-add btn-add--sm"
-                        onClick={() => handleLogNote(item.id)}
-                        disabled={!(noteText[item.id]?.trim())}
-                      >
-                        Log
-                      </button>
-                    </div>
-
-                  </div>
-                )}
+                <SortableContext
+                  items={group.items.map(i => i.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {group.items.map(item => (
+                    <SortableAdoItem
+                      key={item.id}
+                      item={item}
+                      isOpen={!!openItems[item.id]}
+                      onToggle={() => toggleItem(item.id)}
+                      {...cardHandlers}
+                    />
+                  ))}
+                </SortableContext>
               </div>
-            )
-          })}
+            ))}
+
+            <DragOverlay dropAnimation={{ duration: 150, easing: 'ease' }}>
+              {activeItem && (
+                <AdoCard
+                  item={activeItem}
+                  isOpen={false}
+                  onToggle={() => {}}
+                  overlay
+                  {...cardHandlers}
+                />
+              )}
+            </DragOverlay>
+          </DndContext>
+
         </div>
       )}
     </div>

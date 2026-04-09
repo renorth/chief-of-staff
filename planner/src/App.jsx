@@ -160,6 +160,13 @@ export default function App() {
       }
     ))
 
+  const handleWorkLogReorder = (activeId, overId) =>
+    setWorkLog(prev => {
+      const from = prev.findIndex(i => i.id === activeId)
+      const to   = prev.findIndex(i => i.id === overId)
+      return arrayMove(prev, from, to)
+    })
+
   // ── Drag and drop ─────────────────────────────────────────────────────
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
@@ -275,6 +282,7 @@ export default function App() {
         onTagChange={handleWorkLogTagChange}
         onAddNote={handleWorkLogAddNote}
         onDeleteNote={handleWorkLogDeleteNote}
+        onReorder={handleWorkLogReorder}
       />
 
       <Archive

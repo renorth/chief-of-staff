@@ -124,8 +124,8 @@ button { font-family: inherit; }
   flex-wrap:   wrap;
 }
 
-.input-row--tags { margin-top: 8px; }
-.input-row--due  { margin-top: 8px; }
+.input-row--tags { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+.input-row--due  { margin-top: 12px; }
 
 .input-label {
   font-size: 12px;
@@ -756,6 +756,78 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .worklog-status--blocked       { color: var(--red);     background: var(--red-subtle);             }
 .worklog-status--resolved,
 .worklog-status--closed        { color: var(--text-muted); background: var(--bg-subtle); border-color: var(--border); }
+
+/* Drag handle inside worklog */
+.worklog-drag {
+  cursor: grab;
+  color:  var(--border);
+  font-size: 15px;
+  flex-shrink: 0;
+  transition: color .12s;
+}
+.worklog-item:hover .worklog-drag { color: var(--text-muted); }
+.worklog-drag:active { cursor: grabbing; }
+
+/* Filter bar */
+.worklog-filter-bar {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+  flex-wrap:   wrap;
+  padding:     10px 14px;
+  background:  var(--bg-subtle);
+  border:      1px solid var(--border-subtle);
+  border-radius: var(--radius);
+}
+
+/* Status group */
+.worklog-group {
+  border:        1px solid var(--border);
+  border-radius: var(--radius);
+  overflow:      hidden;
+}
+
+.worklog-group-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  padding:         7px 14px;
+  border-left:     3px solid var(--group-color, var(--border));
+  background:      var(--bg-subtle);
+}
+
+.worklog-group-header--active         { --group-color: var(--green);  }
+.worklog-group-header--in-progress    { --group-color: var(--amber);  }
+.worklog-group-header--in-review      { --group-color: var(--accent); }
+.worklog-group-header--at-risk        { --group-color: #e8c840;       }
+.worklog-group-header--blocked        { --group-color: var(--red);    }
+.worklog-group-header--resolved,
+.worklog-group-header--closed         { --group-color: var(--border); }
+
+.worklog-group-label {
+  font-size:      12px;
+  font-weight:    600;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color:          var(--group-color, var(--text-muted));
+}
+
+.worklog-group-count {
+  font-size:     12px;
+  font-weight:   600;
+  color:         var(--group-color, var(--text-muted));
+  background:    color-mix(in srgb, var(--group-color, #888) 12%, transparent);
+  border-radius: 20px;
+  padding:       1px 8px;
+}
+
+/* Overlay card */
+.worklog-item--overlay {
+  box-shadow:   var(--shadow-drag);
+  border-color: var(--accent);
+  rotate:       1deg;
+  cursor:       grabbing;
+}
 
 /* Tag row inside notes panel */
 .worklog-tag-row {
