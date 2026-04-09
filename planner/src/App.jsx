@@ -119,8 +119,7 @@ export default function App() {
 
   const handleDelete = (id) =>
     setTasks(prev => {
-      const task = prev.find(t => t.id === id)
-      if (task?.source === 'workiq' || task?.source === 'teams') saveDeletedTaskId(id)
+      saveDeletedTaskId(id)
       return prev.filter(t => t.id !== id)
     })
 
