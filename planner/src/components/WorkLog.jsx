@@ -77,7 +77,7 @@ function AdoCard({
           onClick={e => e.stopPropagation()}
           onChange={e => onStatusChange(item.id, e.target.value)}
         >
-          {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+          {STATUSES.filter(s => item.status === 'New' || s !== 'New').map(s => <option key={s} value={s}>{s}</option>)}
         </select>
 
         <span className="worklog-note-count">
