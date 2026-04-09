@@ -11,7 +11,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems } from './utils/storage.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
 import { COLUMNS, TAGS } from './constants.js'
@@ -80,9 +80,10 @@ export default function App() {
       .then(r => r.ok ? r.json() : null)
       .then(remote => {
         if (!remote?.items?.length) return
+        const deletedIds = loadDeletedAdoIds()
         setWorkLog(prev => {
           try {
-            return mergeAdoItems(prev, remote.items)
+            return mergeAdoItems(prev, remote.items, deletedIds)
           } catch {
             return prev  // merge failed — keep existing data untouched
           }
@@ -138,7 +139,11 @@ export default function App() {
     ])
 
   const handleWorkLogDelete = (id) =>
-    setWorkLog(prev => prev.filter(item => item.id !== id))
+    setWorkLog(prev => {
+      const item = prev.find(i => i.id === id)
+      if (item?.adoId) saveDeletedAdoId(item.adoId)
+      return prev.filter(i => i.id !== id)
+    })
 
   const handleWorkLogStatusChange = (id, status) =>
     setWorkLog(prev => prev.map(item => item.id === id ? { ...item, status } : item))

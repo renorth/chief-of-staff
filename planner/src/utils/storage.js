@@ -64,21 +64,42 @@ export function saveWorkLog(items) {
 
 // ── ADO merge ─────────────────────────────────────────────────────────────────
 
+const DELETED_ADO_KEY = 'cos_deleted_ado_ids_v1'
+
+export function loadDeletedAdoIds() {
+  try {
+    const raw = localStorage.getItem(DELETED_ADO_KEY)
+    return raw ? new Set(JSON.parse(raw)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+export function saveDeletedAdoId(adoId) {
+  if (!adoId) return
+  try {
+    const existing = loadDeletedAdoIds()
+    existing.add(adoId)
+    localStorage.setItem(DELETED_ADO_KEY, JSON.stringify([...existing]))
+  } catch {}
+}
+
 /**
  * Merge ADO items fetched from GitHub into the work log.
- * - Existing items matched by adoId: title + status updated, notes/tag preserved.
- * - New items appended with source:'ado'.
+ * - Existing items matched by adoId: title updated only (status/tag preserved).
+ * - New items appended with source:'ado', unless in deletedIds.
  */
-export function mergeAdoItems(existing, incoming) {
+export function mergeAdoItems(existing, incoming, deletedIds = new Set()) {
   const result = existing.map(item => {
     const match = incoming.find(i => i.adoId === item.adoId)
     if (!match) return item
-    return { ...item, title: match.title, status: match.status }
+    return { ...item, title: match.title }  // preserve user's status and tag
   })
 
-  const existingUrls = new Set(existing.map(i => i.adoId))
+  const existingAdoIds = new Set(existing.map(i => i.adoId))
   for (const item of incoming) {
-    if (existingUrls.has(item.adoId)) continue
+    if (existingAdoIds.has(item.adoId)) continue
+    if (deletedIds.has(item.adoId)) continue   // permanently deleted by user
     result.push({
       id:        crypto.randomUUID(),
       adoId:     item.adoId,
