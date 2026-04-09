@@ -716,7 +716,7 @@ button { font-family: inherit; }
   white-space:   nowrap;
   text-decoration: none;
   flex-shrink:   0;
-  margin-right:  6px;
+  margin-right:  14px;
 }
 
 a.worklog-ado-id:hover { text-decoration: underline; }
