@@ -41,7 +41,13 @@ export function saveTasks(tasks, lastSync = undefined) {
 export function loadWorkLog() {
   try {
     const raw = localStorage.getItem(LOG_KEY)
-    if (raw) return JSON.parse(raw)
+    if (raw) {
+      const items = JSON.parse(raw)
+      // Ensure every item has required array fields (guard against schema drift)
+      return Array.isArray(items)
+        ? items.map(i => ({ ...i, notes: Array.isArray(i.notes) ? i.notes : [] }))
+        : []
+    }
   } catch {
     localStorage.removeItem(LOG_KEY)
   }
