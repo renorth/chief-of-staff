@@ -52,8 +52,13 @@ jobs:
               headers=headers,
               method='POST',
           )
-          with urllib.request.urlopen(req) as resp:
-              wiql_data = json.loads(resp.read())
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  wiql_data = json.loads(resp.read())
+          except urllib.error.HTTPError as e:
+              body = e.read().decode()
+              print(f'WIQL query failed ({e.code}): {body}')
+              raise
 
           ids = [item['id'] for item in wiql_data.get('workItems', [])]
           print(f'Found {len(ids)} item(s) from WIQL')
