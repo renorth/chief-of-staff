@@ -5,7 +5,9 @@ Uses az CLI auth (no PAT needed). Run from anywhere in the repo.
 
 Usage: python scripts/sync_ado.py
 """
-import subprocess, json, datetime, pathlib, sys
+import subprocess, json, datetime, pathlib, sys, shutil
+
+AZ = shutil.which('az') or r'C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd'
 
 ORG     = 'https://dev.azure.com/Office'
 PROJECT = 'OC'
@@ -14,9 +16,9 @@ AREA    = 'OC\\ExD Growth'
 WIQL = (
     "SELECT [System.Id], [System.Title], [System.State] "
     "FROM WorkItems "
-    "WHERE [System.AssignedTo] = @Me "
-    f"AND [System.AreaPath] UNDER '{AREA}' "
+    f"WHERE [System.AreaPath] UNDER '{AREA}' "
     "AND [System.State] NOT IN ('Closed', 'Removed') "
+    "AND ([System.AssignedTo] = @Me OR [Custom.PM] = @Me) "
     "ORDER BY [System.ChangedDate] DESC"
 )
 
@@ -36,7 +38,7 @@ def run():
     print('Querying ADO...')
     result = subprocess.run(
         [
-            'az', 'boards', 'query',
+            AZ, 'boards', 'query',
             '--wiql',         WIQL,
             '--organization', ORG,
             '--project',      PROJECT,

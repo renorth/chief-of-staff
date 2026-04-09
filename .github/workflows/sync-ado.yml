@@ -1,9 +1,7 @@
 name: Sync ADO Work Items
 
 on:
-  schedule:
-    - cron: '0 15 * * *'   # 8am PT (UTC-7) daily
-  workflow_dispatch:
+  workflow_dispatch:   # manual only — daily sync runs via Windows Task Scheduler (scripts/sync_ado.ps1)
 
 permissions:
   contents: write
