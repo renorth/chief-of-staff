@@ -127,6 +127,7 @@ function AdoCard({
               rows={2}
               value={noteText}
               onChange={e => setNoteText(e.target.value)}
+              onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleLogNote() } }}
             />
             <button
               className="btn-add btn-add--sm"

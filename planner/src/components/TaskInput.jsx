@@ -17,7 +17,7 @@ export default function TaskInput({ onAdd }) {
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSubmit()
+    if (e.key === 'Enter' && (e.ctrlKey || !e.shiftKey)) handleSubmit()
   }
 
   const toggleTag = (id) => setTag(prev => prev === id ? null : id)
