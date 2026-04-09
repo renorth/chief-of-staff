@@ -616,6 +616,252 @@ button { font-family: inherit; }
   flex-shrink: 0;
 }
 
+/* ─── ADO Work Log ───────────────────────────────────────────────────────── */
+.worklog {
+  margin-top:  24px;
+  border-top:  1px solid var(--border-subtle);
+  padding-top: 16px;
+}
+
+.worklog-body {
+  margin-top: 14px;
+  display:    flex;
+  flex-direction: column;
+  gap:        8px;
+}
+
+/* Add form */
+.worklog-add {
+  display:       flex;
+  flex-direction: column;
+  gap:           10px;
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: var(--radius);
+  padding:       12px 14px;
+}
+
+.worklog-add-row {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  flex-wrap:   wrap;
+}
+
+.worklog-add-row--tags { padding-top: 2px; }
+
+.worklog-input {
+  font-family:   var(--font);
+  font-size:     13px;
+  color:         var(--text-primary);
+  background:    var(--bg-inset);
+  border:        1px solid var(--border);
+  border-radius: 6px;
+  padding:       5px 10px;
+  outline:       none;
+  transition:    border-color .12s;
+  caret-color:   var(--accent);
+  width:         120px;
+}
+
+.worklog-input::placeholder { color: var(--text-muted); }
+.worklog-input:focus        { border-color: var(--accent); }
+.worklog-input--title       { flex: 1; min-width: 160px; }
+
+.worklog-status-select {
+  font-family:   var(--font);
+  font-size:     12px;
+  color:         var(--text-secondary);
+  background:    var(--bg-inset);
+  border:        1px solid var(--border);
+  border-radius: 6px;
+  padding:       5px 8px;
+  cursor:        pointer;
+  outline:       none;
+}
+
+/* ADO item card */
+.worklog-item {
+  background:    var(--surface);
+  border:        1px solid var(--border);
+  border-radius: var(--radius);
+  overflow:      hidden;
+}
+
+.worklog-item-header {
+  display:     flex;
+  align-items: center;
+  gap:         8px;
+  padding:     10px 14px;
+  cursor:      pointer;
+  transition:  background .12s;
+  flex-wrap:   wrap;
+}
+
+.worklog-item-header:hover { background: var(--surface-hover); }
+
+.worklog-chevron {
+  color:       var(--text-muted);
+  font-size:   11px;
+  flex-shrink: 0;
+}
+
+.worklog-ado-id {
+  font-size:     11px;
+  font-weight:   600;
+  color:         var(--accent);
+  background:    rgba(88,166,255,.1);
+  border-radius: 4px;
+  padding:       2px 7px;
+  white-space:   nowrap;
+  text-decoration: none;
+  flex-shrink:   0;
+}
+
+a.worklog-ado-id:hover { text-decoration: underline; }
+
+.worklog-item-title {
+  flex:        1;
+  font-size:   13.5px;
+  font-weight: 500;
+  color:       var(--text-primary);
+  min-width:   0;
+}
+
+.worklog-note-count {
+  font-size:   11px;
+  color:       var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Status badge/select on item header */
+.worklog-status {
+  font-family:   var(--font);
+  font-size:     11px;
+  font-weight:   600;
+  border-radius: 20px;
+  padding:       3px 10px;
+  border:        1px solid currentColor;
+  cursor:        pointer;
+  outline:       none;
+  white-space:   nowrap;
+  flex-shrink:   0;
+}
+
+.worklog-status--active        { color: var(--green);   background: var(--green-subtle);          }
+.worklog-status--in-progress   { color: var(--amber);   background: var(--amber-subtle);          }
+.worklog-status--in-review     { color: var(--accent);  background: rgba(88,166,255,.12);          }
+.worklog-status--at-risk       { color: #e8c840;        background: rgba(232,200,64,.13);          }
+.worklog-status--blocked       { color: var(--red);     background: var(--red-subtle);             }
+.worklog-status--resolved,
+.worklog-status--closed        { color: var(--text-muted); background: var(--bg-subtle); border-color: var(--border); }
+
+/* Tag row inside notes panel */
+.worklog-tag-row {
+  display:       flex;
+  align-items:   center;
+  gap:           8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap:     wrap;
+}
+
+.worklog-tag-label {
+  font-size:      11px;
+  font-weight:    600;
+  color:          var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  white-space:    nowrap;
+  width:          36px;
+  flex-shrink:    0;
+}
+
+/* Notes panel */
+.worklog-notes {
+  border-top: 1px solid var(--border-subtle);
+  padding:    10px 14px 14px;
+  display:    flex;
+  flex-direction: column;
+  gap:        6px;
+}
+
+.worklog-notes-empty {
+  font-size:  12px;
+  color:      var(--text-muted);
+  font-style: italic;
+}
+
+.worklog-note {
+  display:     flex;
+  align-items: flex-start;
+  gap:         10px;
+  padding:     6px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.worklog-note:last-of-type { border-bottom: none; }
+
+.worklog-note-date {
+  font-size:   11px;
+  font-weight: 600;
+  color:       var(--text-muted);
+  white-space: nowrap;
+  padding-top: 1px;
+  flex-shrink: 0;
+  min-width:   90px;
+}
+
+.worklog-note-date--today { color: var(--accent); }
+
+.worklog-note-text {
+  flex:       1;
+  font-size:  13px;
+  color:      var(--text-secondary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.worklog-note-add {
+  display:     flex;
+  align-items: flex-end;
+  gap:         8px;
+  margin-top:  4px;
+}
+
+.worklog-textarea {
+  flex:        1;
+  font-family: var(--font);
+  font-size:   13px;
+  color:       var(--text-primary);
+  background:  var(--bg-inset);
+  border:      1px solid var(--border);
+  border-radius: 6px;
+  padding:     6px 10px;
+  outline:     none;
+  resize:      vertical;
+  caret-color: var(--accent);
+  transition:  border-color .12s;
+  line-height: 1.5;
+}
+
+.worklog-textarea::placeholder { color: var(--text-muted); }
+.worklog-textarea:focus        { border-color: var(--accent); }
+
+.worklog-empty {
+  font-size:  12px;
+  color:      var(--text-muted);
+  text-align: center;
+  padding:    12px 0 4px;
+}
+
+.btn-add--sm {
+  padding:   4px 12px;
+  font-size: 12px;
+}
+
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 800px) {
   .board  { grid-template-columns: 1fr; }

@@ -11,8 +11,9 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks, mergeWorkiqTasks } from './utils/storage.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
+import WorkLog from './components/WorkLog.jsx'
 
 const TASKS_URL =
   'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/tasks.json'
@@ -48,6 +49,7 @@ export default function App() {
   const [lastSync, setLastSync]     = useState(null)
   const [activeTask, setActiveTask] = useState(null)
   const [syncing, setSyncing]       = useState(false)
+  const [workLog, setWorkLog]       = useState(() => loadWorkLog())
 
   // Load localStorage then pull latest WorkIQ sync from GitHub
   useEffect(() => {
@@ -76,6 +78,9 @@ export default function App() {
       saveTasks(tasks, lastSync)
     }
   }, [tasks, lastSync])
+
+  // Persist work log
+  useEffect(() => { saveWorkLog(workLog) }, [workLog])
 
   // ── Add task ──────────────────────────────────────────────────────────
   const handleAdd = (title, category, tag, dueDate) => {
@@ -107,6 +112,53 @@ export default function App() {
 
   const handleEdit = (id, newTitle) =>
     setTasks(prev => prev.map(t => t.id === id ? { ...t, title: newTitle } : t))
+
+  // ── Work Log ──────────────────────────────────────────────────────────
+  const handleWorkLogAdd = ({ adoId, title, status, tag }) =>
+    setWorkLog(prev => [
+      ...prev,
+      {
+        id:        crypto.randomUUID(),
+        adoId,
+        title,
+        status,
+        tag:       tag ?? null,
+        notes:     [],
+        createdAt: new Date().toISOString(),
+      },
+    ])
+
+  const handleWorkLogDelete = (id) =>
+    setWorkLog(prev => prev.filter(item => item.id !== id))
+
+  const handleWorkLogStatusChange = (id, status) =>
+    setWorkLog(prev => prev.map(item => item.id === id ? { ...item, status } : item))
+
+  const handleWorkLogTagChange = (id, tag) =>
+    setWorkLog(prev => prev.map(item => item.id === id ? { ...item, tag } : item))
+
+  const handleWorkLogAddNote = (itemId, text) =>
+    setWorkLog(prev => prev.map(item =>
+      item.id !== itemId ? item : {
+        ...item,
+        notes: [
+          ...item.notes,
+          {
+            id:   crypto.randomUUID(),
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            text,
+          },
+        ],
+      }
+    ))
+
+  const handleWorkLogDeleteNote = (itemId, noteId) =>
+    setWorkLog(prev => prev.map(item =>
+      item.id !== itemId ? item : {
+        ...item,
+        notes: item.notes.filter(n => n.id !== noteId),
+      }
+    ))
 
   // ── Drag and drop ─────────────────────────────────────────────────────
   const sensors = useSensors(
@@ -219,6 +271,16 @@ export default function App() {
         tasks={tasks.filter(t => t.completed)}
         onToggle={handleToggle}
         onDelete={handleDelete}
+      />
+
+      <WorkLog
+        items={workLog}
+        onAdd={handleWorkLogAdd}
+        onDelete={handleWorkLogDelete}
+        onStatusChange={handleWorkLogStatusChange}
+        onTagChange={handleWorkLogTagChange}
+        onAddNote={handleWorkLogAddNote}
+        onDeleteNote={handleWorkLogDeleteNote}
       />
     </div>
   )

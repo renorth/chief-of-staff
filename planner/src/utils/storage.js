@@ -1,4 +1,5 @@
-const KEY = 'cos_planner_v1'
+const KEY     = 'cos_planner_v1'
+const LOG_KEY = 'cos_worklog_v1'
 
 /**
  * Load tasks from localStorage.
@@ -34,6 +35,28 @@ export function saveTasks(tasks, lastSync = undefined) {
     // Quota exceeded or private browsing — silently skip
   }
 }
+
+// ── Work Log ──────────────────────────────────────────────────────────────────
+
+export function loadWorkLog() {
+  try {
+    const raw = localStorage.getItem(LOG_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {
+    localStorage.removeItem(LOG_KEY)
+  }
+  return []
+}
+
+export function saveWorkLog(items) {
+  try {
+    localStorage.setItem(LOG_KEY, JSON.stringify(items))
+  } catch {
+    // Quota exceeded or private browsing — silently skip
+  }
+}
+
+// ── Tasks ─────────────────────────────────────────────────────────────────────
 
 /**
  * Merge remote tasks (WorkIQ or Teams bot) into the current task list.
