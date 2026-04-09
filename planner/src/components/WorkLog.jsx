@@ -7,6 +7,25 @@ import {
   useSensors,
   DragOverlay,
 } from '@dnd-kit/core'
+
+function isInteractive(el) {
+  return ['button', 'input', 'textarea', 'select', 'option', 'a'].includes(
+    el?.tagName?.toLowerCase()
+  ) || el?.closest('select, a')
+}
+
+class SafePointerSensor extends PointerSensor {
+  static activators = [
+    {
+      eventName: 'onPointerDown',
+      handler: ({ nativeEvent }) => {
+        if (!nativeEvent.isPrimary || nativeEvent.button !== 0) return false
+        if (isInteractive(nativeEvent.target)) return false
+        return true
+      },
+    },
+  ]
+}
 import {
   SortableContext,
   useSortable,
@@ -198,7 +217,7 @@ export default function WorkLog({
   const [form, setForm]           = useState({ adoId: '', title: '', status: 'Active', tag: null })
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+    useSensor(SafePointerSensor, { activationConstraint: { distance: 6 } })
   )
 
   const toggleItem = id => setOpenItems(prev => ({ ...prev, [id]: !prev[id] }))
