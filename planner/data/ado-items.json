@@ -1,4 +1,95 @@
 {
-  "lastSync": null,
-  "items": []
+  "lastSync": "2026-04-09T18:05:10.295702+00:00",
+  "items": [
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11385414",
+      "title": "3mo Free offer - Rogers",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/3444582",
+      "title": "Licensing vNext: Service Delivered Grace on Win32 for signed in users",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9965184",
+      "title": "Migrate Product Key Dialog to RN Version",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9693704",
+      "title": "Improve UX flow from Product Key dialog",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11153801",
+      "title": "Disable Dime Trials in China",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10712267",
+      "title": "Post Trial Start Page in Dime",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10665512",
+      "title": "Trial Confirmation Value Page in SC/OOBE",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10712277",
+      "title": "Trial Setup Status Tracker in Win32",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10076778",
+      "title": "Update Harmony offramps as needed",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9027303",
+      "title": "[Office Setup SDX] [Win32] [Screen reader]: Screen reader doesn't announce the characters in product key edit field when users navigate with left/ right arrow keys.",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10892627",
+      "title": "Remove 5-day Consumer Grace Period Experiment",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10702339",
+      "title": "M365 Premium & LinkedIn Student Promo – Office Checkout",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9975379",
+      "title": "Test extended grace period in non-eRFM countries",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10665525",
+      "title": "EDU Offer in Dime",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10423955",
+      "title": "Arbutus Premium Student Offer",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9658255",
+      "title": "Add Essentials app switcher to the apps",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/8895901",
+      "title": "Add Defender Identity Theft Monitoring to Existing Subscriber Page in SCOOBE",
+      "status": "Active"
+    },
+    {
+      "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/5645007",
+      "title": "Provide correct discount to HUP (Home Use Program) eligible users in (SC)OOBE",
+      "status": "Active"
+    }
+  ]
 }
