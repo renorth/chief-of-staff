@@ -54,10 +54,13 @@ jobs:
           )
           try:
               with urllib.request.urlopen(req) as resp:
-                  wiql_data = json.loads(resp.read())
-          except urllib.error.HTTPError as e:
-              body = e.read().decode()
-              print(f'WIQL query failed ({e.code}): {body}')
+                  raw = resp.read()
+                  print(f'WIQL response status: {resp.status}, body: {raw[:500]}')
+                  wiql_data = json.loads(raw)
+          except Exception as e:
+              print(f'WIQL request failed: {type(e).__name__}: {e}')
+              if hasattr(e, 'read'):
+                  print(f'Response body: {e.read().decode()[:500]}')
               raise
 
           ids = [item['id'] for item in wiql_data.get('workItems', [])]
