@@ -1,9 +1,7 @@
 name: Sync ADO Work Items
 
 on:
-  schedule:
-    - cron: '0/30 12-22 * * 1-5'   # every 30 min, Mon–Fri, 8 AM–6 PM ET (UTC-4/5)
-  workflow_dispatch:                  # manual trigger from GitHub UI
+  workflow_dispatch:   # manual trigger only — automated sync runs locally via scripts/sync_ado.py
 
 permissions:
   contents: write
