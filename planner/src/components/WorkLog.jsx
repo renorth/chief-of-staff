@@ -96,7 +96,7 @@ function AdoCard({
           onClick={e => e.stopPropagation()}
           onChange={e => onStatusChange(item.id, e.target.value)}
         >
-          {(item.status === 'New' ? STATUSES : STATUSES.filter(s => s !== 'New')).map(s => <option key={s} value={s}>{s}</option>)}
+          {(item.status === 'New' ? STATUSES : STATUSES.filter(s => s !== 'New')).map(s => <option key={s} value={s} style={{ color: '#1c2128', background: '#fff' }}>{s}</option>)}
         </select>
 
         <span className="worklog-note-count">
