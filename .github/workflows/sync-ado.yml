@@ -1,7 +1,9 @@
 name: Sync ADO Work Items
 
 on:
-  workflow_dispatch:   # manual trigger only — automated sync runs locally via scripts/sync_ado.py
+  schedule:
+    - cron: '0 15 * * *'   # 8am PT (UTC-7) daily
+  workflow_dispatch:
 
 permissions:
   contents: write

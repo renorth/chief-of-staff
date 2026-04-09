@@ -750,6 +750,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 }
 
 .worklog-status--active        { color: var(--green);   background: var(--green-subtle);          }
+.worklog-status--new             { color: #fff;           background: rgba(255,255,255,.1);         }
 .worklog-status--live-experiment { color: var(--green);  background: var(--green-subtle);          }
 .worklog-status--in-backlog     { color: var(--accent);  background: rgba(88,166,255,.12);          }
 .worklog-status--pre-pitch      { color: #d2a8ff;        background: rgba(210,168,255,.12);         }
@@ -798,6 +799,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 }
 
 .worklog-group-header--active         { --group-color: var(--green);  }
+.worklog-group-header--new             { --group-color: #e6edf3;       }
 .worklog-group-header--live-experiment { --group-color: var(--green);  }
 .worklog-group-header--in-backlog      { --group-color: var(--accent); }
 .worklog-group-header--pre-pitch       { --group-color: #d2a8ff;       }

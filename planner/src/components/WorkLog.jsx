@@ -18,7 +18,7 @@ import { TAGS } from '../constants.js'
 const ADO_TAGS = TAGS.filter(t => t.id !== 'personal')
 
 export const STATUSES = [
-  'Live Experiment', 'Active', 'In Backlog', 'Pre-Pitch', 'At Risk', 'Blocked', 'Resolved', 'Closed',
+  'New', 'Live Experiment', 'Active', 'In Backlog', 'Pre-Pitch', 'At Risk', 'Blocked', 'Resolved', 'Closed',
 ]
 
 function todayLabel() {

@@ -104,7 +104,7 @@ export function mergeAdoItems(existing, incoming, deletedIds = new Set()) {
       id:        crypto.randomUUID(),
       adoId:     item.adoId,
       title:     item.title,
-      status:    item.status,
+      status:    'New',
       tag:       null,
       notes:     [],
       source:    'ado',
