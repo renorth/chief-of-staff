@@ -4,7 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'planner/**'
+      - 'planner/src/**'
+      - 'planner/public/**'
+      - 'planner/index.html'
+      - 'planner/package.json'
+      - 'planner/vite.config.js'
       - '.github/workflows/deploy-planner.yml'
   workflow_dispatch:   # lets you trigger manually from GitHub UI
 

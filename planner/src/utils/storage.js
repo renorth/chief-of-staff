@@ -56,6 +56,38 @@ export function saveWorkLog(items) {
   }
 }
 
+// ── ADO merge ─────────────────────────────────────────────────────────────────
+
+/**
+ * Merge ADO items fetched from GitHub into the work log.
+ * - Existing items matched by adoId: title + status updated, notes/tag preserved.
+ * - New items appended with source:'ado'.
+ */
+export function mergeAdoItems(existing, incoming) {
+  const result = existing.map(item => {
+    const match = incoming.find(i => i.adoId === item.adoId)
+    if (!match) return item
+    return { ...item, title: match.title, status: match.status }
+  })
+
+  const existingUrls = new Set(existing.map(i => i.adoId))
+  for (const item of incoming) {
+    if (existingUrls.has(item.adoId)) continue
+    result.push({
+      id:        crypto.randomUUID(),
+      adoId:     item.adoId,
+      title:     item.title,
+      status:    item.status,
+      tag:       null,
+      notes:     [],
+      source:    'ado',
+      createdAt: new Date().toISOString(),
+    })
+  }
+
+  return result
+}
+
 // ── Tasks ─────────────────────────────────────────────────────────────────────
 
 /**

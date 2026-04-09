@@ -1,0 +1,115 @@
+name: Sync ADO Work Items
+
+on:
+  schedule:
+    - cron: '0/30 12-22 * * 1-5'   # every 30 min, Mon–Fri, 8 AM–6 PM ET (UTC-4/5)
+  workflow_dispatch:                  # manual trigger from GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch ADO items assigned to me
+        env:
+          ADO_PAT: ${{ secrets.ADO_PAT }}
+        run: |
+          python3 - <<'EOF'
+          import json, os, datetime, urllib.request, base64, pathlib
+
+          pat  = os.environ['ADO_PAT']
+          org  = 'Office'
+          proj = 'OC'
+          area = 'OC\\ExD Growth'
+
+          token   = base64.b64encode(f':{pat}'.encode()).decode()
+          headers = {
+              'Authorization': f'Basic {token}',
+              'Content-Type':  'application/json',
+          }
+
+          # ── WIQL: items assigned to me under the area path ──────────────────
+          wiql_url = f'https://dev.azure.com/{org}/{proj}/_apis/wit/wiql?api-version=7.1'
+          query    = {
+              'query': (
+                  "SELECT [System.Id] FROM WorkItems "
+                  f"WHERE [System.AssignedTo] = @Me "
+                  f"AND [System.AreaPath] UNDER '{area}' "
+                  "AND [System.State] NOT IN ('Closed','Removed') "
+                  "ORDER BY [System.ChangedDate] DESC"
+              )
+          }
+
+          req = urllib.request.Request(
+              wiql_url,
+              data=json.dumps(query).encode(),
+              headers=headers,
+              method='POST',
+          )
+          with urllib.request.urlopen(req) as resp:
+              wiql_data = json.loads(resp.read())
+
+          ids = [item['id'] for item in wiql_data.get('workItems', [])]
+          print(f'Found {len(ids)} item(s) from WIQL')
+
+          items = []
+          if ids:
+              # Batch fetch details (ADO max 200 per request)
+              for batch_start in range(0, len(ids), 200):
+                  batch = ids[batch_start:batch_start + 200]
+                  ids_str   = ','.join(str(i) for i in batch)
+                  fields    = 'System.Id,System.Title,System.State'
+                  items_url = (
+                      f'https://dev.azure.com/{org}/{proj}/_apis/wit/workitems'
+                      f'?ids={ids_str}&fields={fields}&api-version=7.1'
+                  )
+                  req2 = urllib.request.Request(items_url, headers=headers)
+                  with urllib.request.urlopen(req2) as resp2:
+                      items_data = json.loads(resp2.read())
+
+                  STATE_MAP = {
+                      'New':         'Active',
+                      'Active':      'Active',
+                      'In Progress': 'In Progress',
+                      'Committed':   'In Progress',
+                      'In Review':   'In Review',
+                      'Resolved':    'Resolved',
+                      'Closed':      'Closed',
+                      'Blocked':     'Blocked',
+                      'On Hold':     'At Risk',
+                  }
+
+                  for wi in items_data['value']:
+                      ado_id = wi['id']
+                      state  = wi['fields'].get('System.State', 'Active')
+                      items.append({
+                          'adoId':  f'https://dev.azure.com/{org}/{proj}/_workitems/edit/{ado_id}',
+                          'title':  wi['fields'].get('System.Title', f'Work Item {ado_id}'),
+                          'status': STATE_MAP.get(state, 'Active'),
+                      })
+
+          output = {
+              'lastSync': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'items':    items,
+          }
+
+          f = pathlib.Path('planner/data/ado-items.json')
+          f.parent.mkdir(exist_ok=True)
+          f.write_text(json.dumps(output, indent=2, ensure_ascii=False))
+          print(f'Wrote {len(items)} item(s) to ado-items.json')
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name  "ADO Sync Bot"
+          git config user.email "bot@chief-of-staff"
+          git add planner/data/ado-items.json
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "sync: update ADO work items"
+          git push
