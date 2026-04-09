@@ -11,7 +11,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems } from './utils/storage.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
 import { COLUMNS, TAGS } from './constants.js'
@@ -19,8 +19,6 @@ import { COLUMNS, TAGS } from './constants.js'
 const TASKS_URL =
   'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/tasks.json'
 
-const ADO_ITEMS_URL =
-  'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/ado-items.json'
 
 function formatDate() {
   return new Date().toLocaleDateString('en-US', {
@@ -73,16 +71,6 @@ export default function App() {
   // Persist work log
   useEffect(() => { saveWorkLog(workLog) }, [workLog])
 
-  // Sync ADO items from GitHub on load
-  useEffect(() => {
-    fetch(`${ADO_ITEMS_URL}?t=${Date.now()}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(remote => {
-        if (!remote?.items?.length) return
-        setWorkLog(prev => mergeAdoItems(prev, remote.items))
-      })
-      .catch(() => {})   // offline — silently skip
-  }, [])
 
   // ── Add task ──────────────────────────────────────────────────────────
   const handleAdd = (title, category, tag, dueDate) => {
