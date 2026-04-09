@@ -752,6 +752,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .worklog-status--active        { color: var(--green);   background: var(--green-subtle);          }
 .worklog-status--in-progress   { color: var(--amber);   background: var(--amber-subtle);          }
 .worklog-status--in-backlog     { color: var(--accent);  background: rgba(88,166,255,.12);          }
+.worklog-status--pre-pitch      { color: #d2a8ff;        background: rgba(210,168,255,.12);         }
 .worklog-status--at-risk       { color: #e8c840;        background: rgba(232,200,64,.13);          }
 .worklog-status--blocked       { color: var(--red);     background: var(--red-subtle);             }
 .worklog-status--resolved,
@@ -799,6 +800,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .worklog-group-header--active         { --group-color: var(--green);  }
 .worklog-group-header--in-progress    { --group-color: var(--amber);  }
 .worklog-group-header--in-backlog      { --group-color: var(--accent); }
+.worklog-group-header--pre-pitch       { --group-color: #d2a8ff;       }
 .worklog-group-header--at-risk        { --group-color: #e8c840;       }
 .worklog-group-header--blocked        { --group-color: var(--red);    }
 .worklog-group-header--resolved,
