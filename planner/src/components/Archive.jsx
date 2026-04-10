@@ -18,7 +18,7 @@ export default function Archive({ tasks, onToggle, onDelete }) {
     setOpenGroups(prev => ({ ...prev, [id]: !prev[id] }))
 
   // Build groups: one per tag + one for untagged
-  const tagDefs = [...TAGS, { id: '__none__', label: 'Untagged', color: '#6e7681' }]
+  const tagDefs = [...TAGS, { id: '__none__', label: 'Other', color: '#6e7681' }]
   const groups  = tagDefs
     .map(tag => ({
       ...tag,
