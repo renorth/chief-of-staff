@@ -123,8 +123,8 @@ export default function App() {
       return prev.filter(t => t.id !== id)
     })
 
-  const handleEdit = (id, newTitle) =>
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, title: newTitle } : t))
+  const handleUpdate = (id, changes) =>
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, ...changes } : t))
 
   // ── Work Log ──────────────────────────────────────────────────────────
   const handleWorkLogAdd = ({ adoId, title, status, tag }) =>
@@ -279,7 +279,7 @@ export default function App() {
               tasks={tasks.filter(t => t.category === col.id && !t.completed)}
               onToggle={handleToggle}
               onDelete={handleDelete}
-              onEdit={handleEdit}
+              onUpdate={handleUpdate}
             />
           ))}
         </div>
