@@ -1,0 +1,210 @@
+[
+  {
+    "id": "518bfc39-c790-4032-b3b0-42f93c6550c5",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11385414",
+    "title": "3mo Free offer - Rogers",
+    "status": "In Backlog",
+    "tag": "office_checkout",
+    "notes": [
+      {
+        "id": "0d28e8a9-bde0-4c25-b6e6-a527fa6bf504",
+        "date": "Apr 9, 2026",
+        "text": "- catalog set up Canada, new users\n- unipux makes sure catalog is working and we have a URL to track\n- no dna groups to make sure link wont be leaked\n- offer for all of Canada and rogers hide benefit\n- cap licsences at 10% of rogers customer base\n- $5 from rogers per each redeemed offer\n- mid-april"
+      },
+      {
+        "id": "2bf5da82-0e6a-4506-92f5-66f0e1307599",
+        "date": "Apr 9, 2026",
+        "text": "need to figure out UX with matt murphy"
+      },
+      {
+        "id": "193b9f05-1cf7-476e-a9f9-738eb07773e0",
+        "date": "Apr 13, 2026",
+        "text": "- standing up a checkout URL for the partner to point to, rather than a page\n- 3 month subscription, no customization in the checkout flow just make it available\n- we are discussing for other telcos, would we stand this up  for other partners / can we build it in a way to go and have it happen for other countries\n- key thing is tracking, because were billing upfront and then we want to turn it off when they hit a certain number (80K redemption cap) - how do we track\n- launch date of May 15th"
+      },
+      {
+        "id": "4ea585e7-e941-467f-900c-776dd86b5498",
+        "date": "Apr 17, 2026",
+        "text": "PM Spec: https://microsoft.sharepoint-df.com/:w:/t/ExDGrowth/cQpn7bx8QxVtRIFJkPtblgzyEgUC9W3TxQnqK29_EySvyHXs9w"
+      }
+    ],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "586c8277-fb6e-4727-ae33-51ed909d36eb",
+    "adoId": "https://office.visualstudio.com/OC/_workitems/edit/11031231/?view=edit",
+    "title": "Win32 Sidepane",
+    "status": "Active",
+    "tag": "trials",
+    "notes": [
+      {
+        "id": "38580f7a-ebcf-4d3e-ad00-e4a5e526a8c9",
+        "date": "Apr 9, 2026",
+        "text": "Need to do OCG review"
+      },
+      {
+        "id": "9df82b30-e221-4951-92e6-9f2a9b684072",
+        "date": "Apr 9, 2026",
+        "text": "Currently if a user xs out the dialog it will not show again on another session.  We are going to take the time to fix this bug and backport it to the March fork.  This means we can roll out the sidepane by May.  This is necessary for experiment evaluation"
+      }
+    ],
+    "createdAt": "2026-04-09T17:35:27.082Z"
+  },
+  {
+    "id": "791ffec3-356f-46b2-92eb-59147adcc54e",
+    "adoId": "https://office.visualstudio.com/OC/_workitems/edit/11032028",
+    "title": "Project Primus",
+    "status": "Active",
+    "tag": "office_checkout",
+    "notes": [
+      {
+        "id": "961456ed-880e-4401-a367-989038283321",
+        "date": "Apr 9, 2026",
+        "text": "- new sku that monthly $200, goal is to target influencers and AI savy users\n- give a lot of value - github, tasks, everything we can offer we will.  MAI launch tasks (agentic ablity), preview in the US.  this has been launched for premium but might consume too many credits\n- april 22nd, code & test complete\n- heard 4/8 no go because no metrics from MAI that tasks is working\n- can hear any tues in may theyre launching pro\n- we just need to communicate date to eng teams for testing\n- this work supports pro as a solution for MAI and aug we want to fully launch pro for GTM and well need to update redemption, OF, unity post-purchase to reflect new value props and UI\n- follow up with Miriam about ownership\n- manage DNA for growth, so whenever someone wants to test pro, share puid and puid needs to be added to growth\n- premium in cc portal to add members, paste PUID"
+      }
+    ],
+    "createdAt": "2026-04-09T16:50:05.028Z"
+  },
+  {
+    "id": "64439147-70c2-45a5-8b38-130a068a5a5a",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/3444582",
+    "title": "Licensing vNext: Service Delivered Grace on Win32 for signed in users",
+    "status": "Active",
+    "tag": "office_client",
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "9a407fa9-5ab8-43a6-b0fc-f0277225cd58",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11031987",
+    "title": "AI sharing - Update value props across Office Checkout, DIME and OOBE",
+    "status": "Pre-Pitch",
+    "tag": "office_checkout",
+    "notes": [
+      {
+        "id": "c22c9b30-3d33-4f84-94e8-5cd1ef6c4d03",
+        "date": "Apr 9, 2026",
+        "text": "work with Miriam"
+      },
+      {
+        "id": "c8dcea4e-a7a9-4abb-b92e-f62a23604066",
+        "date": "Apr 17, 2026",
+        "text": "PM Spec: https://microsoft.sharepoint-df.com/:p:/t/ExDGrowth/cQr9-kCroQbVQLpmvd_M1rpgEgUCco4bw3dHWrrJ6jjxiId4xQ"
+      }
+    ],
+    "source": "ado",
+    "createdAt": "2026-04-09T19:21:29.947Z"
+  },
+  {
+    "id": "c9a29d64-43fc-4b1e-8303-76721c10c571",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10892627",
+    "title": "Remove 5-day Consumer Grace Period Experiment",
+    "status": "Pre-Pitch",
+    "tag": "office_client",
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "d2c4aa46-a3b6-4643-9702-2638626e474c",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9965184",
+    "title": "Migrate Product Key Dialog to RN Version",
+    "status": "Pre-Pitch",
+    "tag": "office_client",
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "006b1264-0678-40ff-a262-68b38206ef04",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11153801",
+    "title": "Disable Dime Trials in China",
+    "status": "In Backlog",
+    "tag": "trials",
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "e691ed3f-a2a7-4841-809c-1d992ccb2e19",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10712267",
+    "title": "Post Trial Start Page in Dime",
+    "status": "In Backlog",
+    "tag": "trials",
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "5bd6eab8-bcdf-470b-8006-df426209d6dc",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10665512",
+    "title": "Trial Confirmation Value Page in SC/OOBE",
+    "status": "In Backlog",
+    "tag": "trials",
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "b1a1645e-6cc0-416e-a004-7d947b5335ed",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10665525",
+    "title": "EDU Offer in Dime",
+    "status": "Pre-Pitch",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T18:33:48.228Z"
+  },
+  {
+    "id": "db0eae5d-18e9-4979-8b82-387b2136bd88",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9889282",
+    "title": "Lumos-Dime URL Migration for OCDI Initiative",
+    "status": "Active",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-04-09T19:26:35.358Z"
+  },
+  {
+    "id": "5facd95d-5661-4495-8389-6c8e25a6f322",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/8974067",
+    "title": "Subscription expired Persado String Variant",
+    "status": "Live Experiment",
+    "tag": "office_client",
+    "notes": [
+      {
+        "id": "6e875d38-a4b8-4ef7-b943-2c848db0e180",
+        "date": "Apr 9, 2026",
+        "text": "Treatment PE17463815 seems to be the winner, quick math on impact below. It's interesting Basic is seeing the most lift, especially since we don't even assort Basic in DIME in Win32 apps. My theory there is 1) that because many of these users are in a near/critical/over-quota state and have already churned out of M365 F/P, they fall back to Basic to fulfill storage needs and 2) we are concurrently running a DIME test that personalizes for these near/critical/over quota users by showing their storage consumption, which we see driving huge lift in Basic subs. So they must be in the experiment but buying elsewhere, given Basic lift. Here's the scorecard for that looking at the top treatment and wxp win32. \n \nI think we call this a winner and follow up with a dialog customized by quota state, see if we can really lean into USQ and winback those over near/critical/quota users. (we have 21M of them in total ecosystem, then another 53M near/critical)\n61k Total GAs\n+40.7k F/P GAs (PSR +0.5%)\n+20.3k Basic GAs (Basic purchase rate +2%)\n+$11.7M LTV (+0.66%)"
+      },
+      {
+        "id": "977b0efb-9655-4537-83e5-0bec1d621d16",
+        "date": "Apr 9, 2026",
+        "text": "Rolling out winner by 4/10"
+      },
+      {
+        "id": "9cfc4642-5694-442c-be1f-2f322fa7b789",
+        "date": "Apr 21, 2026",
+        "text": "Commons post posted: https://microsoft.sharepoint-df.com/:u:/r/teams/ExDGrowth/SitePages/Subscription-Expired-Persado.aspx?csf=1&web=1&share=IQBFgtwvLlpYRKDAsPGndeLlATNeHhm_5tmAGnlrlE_y4LM&e=eWkDgh"
+      }
+    ],
+    "source": "ado",
+    "createdAt": "2026-04-09T19:26:35.358Z"
+  },
+  {
+    "id": "388c631b-3103-46d6-9819-4965680b6dbc",
+    "adoId": "",
+    "title": "Student offer",
+    "status": "Active",
+    "tag": "office_checkout",
+    "notes": [
+      {
+        "id": "14da6847-a7d3-44b7-beb8-23c16dee2284",
+        "date": "Apr 15, 2026",
+        "text": "- Takeshi wants to do cross-promo on confirmation page on checkout\n- we just need to P0 be available for testing"
+      }
+    ],
+    "createdAt": "2026-04-15T22:41:09.278Z"
+  }
+]
