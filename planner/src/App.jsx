@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -12,6 +12,7 @@ import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
 import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId } from './utils/storage.js'
+import { isConfigured, initAuth, signIn, signOut, readFile, writeFile } from './utils/onedrive.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
 import { COLUMNS, TAGS } from './constants.js'
@@ -21,6 +22,7 @@ const TASKS_URL =
 
 const ADO_ITEMS_URL =
   'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data/ado-items.json'
+
 
 
 function formatDate() {
@@ -42,6 +44,11 @@ export default function App() {
   const [activeTask, setActiveTask] = useState(null)
   const [syncing, setSyncing]       = useState(false)
   const [workLog, setWorkLog]       = useState(() => loadWorkLog())
+
+  const [account, setAccount]   = useState(null)
+  const [odStatus, setOdStatus] = useState('idle') // idle | loading | saving | saved | error
+  const [odLoaded, setOdLoaded] = useState(false)
+  const odTimerRef              = useRef(null)
 
   // Load localStorage then pull latest WorkIQ sync from GitHub
   useEffect(() => {
@@ -74,6 +81,61 @@ export default function App() {
   // Persist work log
   useEffect(() => { saveWorkLog(workLog) }, [workLog])
 
+  // Initialize MSAL and restore session from cache
+  useEffect(() => {
+    initAuth().then(acct => setAccount(acct))
+  }, [])
+
+  // When signed in, load manual tasks + workLog from OneDrive
+  useEffect(() => {
+    if (!account) { setOdLoaded(true); return }
+    setOdStatus('loading')
+    Promise.all([
+      readFile('manual-tasks.json'),
+      readFile('worklog.json'),
+    ]).then(([remoteTasks, remoteLog]) => {
+      if (Array.isArray(remoteTasks) && remoteTasks.length > 0) {
+        const deletedIds = loadDeletedTaskIds()
+        setTasks(prev => {
+          const localIds = new Set(prev.map(t => t.id))
+          const toAdd    = remoteTasks.filter(t => !localIds.has(t.id) && !deletedIds.has(t.id))
+          return toAdd.length ? [...prev, ...toAdd] : prev
+        })
+      }
+      if (Array.isArray(remoteLog) && remoteLog.length > 0) {
+        const deletedIds = loadDeletedAdoIds()
+        setWorkLog(prev => {
+          const remoteMap = new Map(remoteLog.map(i => [i.id, i]))
+          const updated   = prev.map(i => remoteMap.has(i.id) ? remoteMap.get(i.id) : i)
+          const localIds  = new Set(prev.map(i => i.id))
+          const toAdd     = remoteLog.filter(i => !localIds.has(i.id) && !deletedIds.has(i.adoId))
+          return toAdd.length ? [...updated, ...toAdd] : updated
+        })
+      }
+      setOdStatus('idle')
+    }).catch(() => setOdStatus('error'))
+      .finally(() => setOdLoaded(true))
+  }, [account])
+
+  // Debounced save to OneDrive after any change (only after initial load)
+  useEffect(() => {
+    if (!account || !odLoaded) return
+    clearTimeout(odTimerRef.current)
+    odTimerRef.current = setTimeout(async () => {
+      setOdStatus('saving')
+      try {
+        await Promise.all([
+          writeFile('manual-tasks.json', tasks.filter(t => t.source === 'manual')),
+          writeFile('worklog.json', workLog),
+        ])
+        setOdStatus('saved')
+      } catch {
+        setOdStatus('error')
+      }
+    }, 3000)
+    return () => clearTimeout(odTimerRef.current)
+  }, [tasks, workLog, account, odLoaded])
+
   // Sync ADO items from GitHub on load
   useEffect(() => {
     fetch(`${ADO_ITEMS_URL}?t=${Date.now()}`)
@@ -91,6 +153,26 @@ export default function App() {
       })
       .catch(() => {})  // offline or rate-limited — silently skip
   }, [])
+
+  // ── OneDrive sign in / out ────────────────────────────────────────────
+  const handleSignIn = async () => {
+    try {
+      const acct = await signIn()
+      setAccount(acct)
+      setOdLoaded(false)
+    } catch {
+      // user closed popup — do nothing
+    }
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch { /* ignore */ }
+    setAccount(null)
+    setOdStatus('idle')
+    setOdLoaded(false)
+  }
 
   // ── Add task ──────────────────────────────────────────────────────────
   const handleAdd = (title, category, tag, dueDate) => {
@@ -252,14 +334,38 @@ export default function App() {
           <h1 className="header-title">Rebecca's Planner</h1>
           <span className="header-date">{formatDate()}</span>
         </div>
-        {syncing
-          ? <span className="header-sync header-sync--loading">Syncing…</span>
-          : lastSync && (
-              <span className="header-sync">
-                M365 synced at {formatSync(lastSync)}
-              </span>
-            )
-        }
+        <div className="header-right">
+          {syncing
+            ? <span className="header-sync header-sync--loading">Syncing…</span>
+            : lastSync && (
+                <span className="header-sync">
+                  M365 synced at {formatSync(lastSync)}
+                </span>
+              )
+          }
+          {isConfigured() && (
+            <div className="od-sync-wrap">
+              {!account ? (
+                <button className="od-signin-btn" onClick={handleSignIn}>
+                  Sign in with Microsoft
+                </button>
+              ) : odStatus === 'loading' ? (
+                <span className="od-status od-status--loading">Loading from OneDrive…</span>
+              ) : odStatus === 'saving' ? (
+                <span className="od-status od-status--saving">Saving…</span>
+              ) : odStatus === 'saved' ? (
+                <span className="od-status od-status--saved">Saved</span>
+              ) : odStatus === 'error' ? (
+                <span className="od-status od-status--error">Sync error</span>
+              ) : (
+                <span className="od-status od-status--idle">{account.name ?? account.username}</span>
+              )}
+              {account && (
+                <button className="od-signout-btn" onClick={handleSignOut} title="Sign out">✕</button>
+              )}
+            </div>
+          )}
+        </div>
       </header>
 
       <TaskInput onAdd={handleAdd} />

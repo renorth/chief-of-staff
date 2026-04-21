@@ -91,6 +91,64 @@ button { font-family: inherit; }
   50%       { opacity: .4; }
 }
 
+/* ─── Header right cluster ───────────────────────────────────────────────── */
+.header-right {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  flex-wrap:   wrap;
+  justify-content: flex-end;
+}
+
+/* ─── OneDrive Sync ──────────────────────────────────────────────────────── */
+.od-sync-wrap {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+}
+
+.od-signin-btn {
+  font-size:     13px;
+  padding:       5px 14px;
+  border-radius: 20px;
+  border:        1px solid #0078d4;
+  background:    #0078d4;
+  color:         #fff;
+  cursor:        pointer;
+  font-family:   inherit;
+  transition:    background .15s;
+}
+.od-signin-btn:hover { background: #006cbe; }
+
+.od-status {
+  font-size:     13px;
+  padding:       4px 12px;
+  border-radius: 20px;
+  border:        1px solid var(--border-subtle);
+  background:    var(--bg-subtle);
+  max-width:     200px;
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
+}
+.od-status--idle    { color: var(--text-secondary); }
+.od-status--loading { color: var(--text-muted); animation: pulse 1.2s ease-in-out infinite; }
+.od-status--saving  { color: var(--text-muted); animation: pulse 1.2s ease-in-out infinite; }
+.od-status--saved   { color: var(--green); border-color: rgba(63,185,80,.4); }
+.od-status--error   { color: var(--red);   border-color: rgba(248,81,73,.4); }
+
+.od-signout-btn {
+  background:    transparent;
+  border:        none;
+  color:         var(--text-muted);
+  cursor:        pointer;
+  font-size:     12px;
+  padding:       2px 4px;
+  border-radius: 4px;
+  line-height:   1;
+}
+.od-signout-btn:hover { color: var(--text-secondary); }
+
 /* ─── Task Input Card ────────────────────────────────────────────────────── */
 .input-card {
   background:    var(--surface);
