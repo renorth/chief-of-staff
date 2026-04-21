@@ -11,8 +11,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId } from './utils/storage.js'
-import { isConfigured, initAuth, signIn, signOut, readFile, writeFile } from './utils/onedrive.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId, getGitHubToken, setGitHubToken, pushToGitHub } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
 import { COLUMNS, TAGS } from './constants.js'
@@ -45,10 +44,12 @@ export default function App() {
   const [syncing, setSyncing]       = useState(false)
   const [workLog, setWorkLog]       = useState(() => loadWorkLog())
 
-  const [account, setAccount]   = useState(null)
-  const [odStatus, setOdStatus] = useState('idle') // idle | loading | saving | saved | error
-  const [odLoaded, setOdLoaded] = useState(false)
-  const odTimerRef              = useRef(null)
+  const [ghToken, setGhToken]         = useState(() => getGitHubToken())
+  const [ghStatus, setGhStatus]       = useState('idle') // idle | saving | saved | error | bad-token
+  const [ghLoaded, setGhLoaded]       = useState(false)
+  const [showTokenInput, setShowTokenInput] = useState(false)
+  const [tokenDraft, setTokenDraft]   = useState('')
+  const ghTimerRef                    = useRef(null)
 
   // Load localStorage then pull latest WorkIQ sync from GitHub
   useEffect(() => {
@@ -81,18 +82,13 @@ export default function App() {
   // Persist work log
   useEffect(() => { saveWorkLog(workLog) }, [workLog])
 
-  // Initialize MSAL and restore session from cache
+  // On load: fetch manual tasks + workLog saved from other devices
   useEffect(() => {
-    initAuth().then(acct => setAccount(acct))
-  }, [])
-
-  // When signed in, load manual tasks + workLog from OneDrive
-  useEffect(() => {
-    if (!account) { setOdLoaded(true); return }
-    setOdStatus('loading')
+    if (!ghToken) { setGhLoaded(true); return }
+    const base = 'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data'
     Promise.all([
-      readFile('manual-tasks.json'),
-      readFile('worklog.json'),
+      fetch(`${base}/manual-tasks.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${base}/worklog.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
     ]).then(([remoteTasks, remoteLog]) => {
       if (Array.isArray(remoteTasks) && remoteTasks.length > 0) {
         const deletedIds = loadDeletedTaskIds()
@@ -112,29 +108,26 @@ export default function App() {
           return toAdd.length ? [...updated, ...toAdd] : updated
         })
       }
-      setOdStatus('idle')
-    }).catch(() => setOdStatus('error'))
-      .finally(() => setOdLoaded(true))
-  }, [account])
+    }).finally(() => setGhLoaded(true))
+  }, [ghToken])
 
-  // Debounced save to OneDrive after any change (only after initial load)
+  // Debounced save to GitHub after any change (only after initial load)
   useEffect(() => {
-    if (!account || !odLoaded) return
-    clearTimeout(odTimerRef.current)
-    odTimerRef.current = setTimeout(async () => {
-      setOdStatus('saving')
-      try {
-        await Promise.all([
-          writeFile('manual-tasks.json', tasks.filter(t => t.source === 'manual')),
-          writeFile('worklog.json', workLog),
-        ])
-        setOdStatus('saved')
-      } catch {
-        setOdStatus('error')
-      }
+    if (!ghToken || !ghLoaded) return
+    clearTimeout(ghTimerRef.current)
+    ghTimerRef.current = setTimeout(async () => {
+      setGhStatus('saving')
+      const [r1, r2] = await Promise.all([
+        pushToGitHub('planner/data/manual-tasks.json', tasks.filter(t => t.source === 'manual'), ghToken),
+        pushToGitHub('planner/data/worklog.json', workLog, ghToken),
+      ])
+      const err = r1.error || r2.error
+      if (err === 'bad-token') setGhStatus('bad-token')
+      else if (r1.ok && r2.ok) setGhStatus('saved')
+      else setGhStatus('error')
     }, 3000)
-    return () => clearTimeout(odTimerRef.current)
-  }, [tasks, workLog, account, odLoaded])
+    return () => clearTimeout(ghTimerRef.current)
+  }, [tasks, workLog, ghToken, ghLoaded])
 
   // Sync ADO items from GitHub on load
   useEffect(() => {
@@ -154,24 +147,23 @@ export default function App() {
       .catch(() => {})  // offline or rate-limited — silently skip
   }, [])
 
-  // ── OneDrive sign in / out ────────────────────────────────────────────
-  const handleSignIn = async () => {
-    try {
-      const acct = await signIn()
-      setAccount(acct)
-      setOdLoaded(false)
-    } catch {
-      // user closed popup — do nothing
-    }
+  // ── GitHub token ──────────────────────────────────────────────────────
+  const handleTokenSave = (e) => {
+    e.preventDefault()
+    const t = tokenDraft.trim()
+    setGitHubToken(t)
+    setGhToken(t)
+    setTokenDraft('')
+    setShowTokenInput(false)
+    setGhStatus('idle')
+    setGhLoaded(false)
   }
 
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-    } catch { /* ignore */ }
-    setAccount(null)
-    setOdStatus('idle')
-    setOdLoaded(false)
+  const handleTokenClear = () => {
+    setGitHubToken('')
+    setGhToken('')
+    setGhStatus('idle')
+    setShowTokenInput(false)
   }
 
   // ── Add task ──────────────────────────────────────────────────────────
@@ -343,28 +335,47 @@ export default function App() {
                 </span>
               )
           }
-          {isConfigured() && (
-            <div className="od-sync-wrap">
-              {!account ? (
-                <button className="od-signin-btn" onClick={handleSignIn}>
-                  Sign in with Microsoft
-                </button>
-              ) : odStatus === 'loading' ? (
-                <span className="od-status od-status--loading">Loading from OneDrive…</span>
-              ) : odStatus === 'saving' ? (
-                <span className="od-status od-status--saving">Saving…</span>
-              ) : odStatus === 'saved' ? (
-                <span className="od-status od-status--saved">Saved</span>
-              ) : odStatus === 'error' ? (
-                <span className="od-status od-status--error">Sync error</span>
-              ) : (
-                <span className="od-status od-status--idle">{account.name ?? account.username}</span>
-              )}
-              {account && (
-                <button className="od-signout-btn" onClick={handleSignOut} title="Sign out">✕</button>
-              )}
-            </div>
-          )}
+          <div className="gh-sync-wrap">
+            {!ghToken ? (
+              <button className="gh-sync-btn gh-sync-btn--connect" onClick={() => setShowTokenInput(v => !v)}>
+                Connect GitHub
+              </button>
+            ) : ghStatus === 'saving' ? (
+              <span className="gh-sync-badge gh-sync-badge--saving">Saving…</span>
+            ) : ghStatus === 'saved' ? (
+              <span className="gh-sync-badge gh-sync-badge--saved">Saved to GitHub</span>
+            ) : ghStatus === 'bad-token' ? (
+              <button className="gh-sync-btn gh-sync-btn--error" onClick={() => setShowTokenInput(v => !v)}>
+                Token invalid — fix
+              </button>
+            ) : ghStatus === 'error' ? (
+              <span className="gh-sync-badge gh-sync-badge--error">Sync failed</span>
+            ) : (
+              <button className="gh-sync-btn gh-sync-btn--connected" onClick={() => setShowTokenInput(v => !v)}>
+                GitHub connected
+              </button>
+            )}
+            {showTokenInput && (
+              <form className="gh-token-form" onSubmit={handleTokenSave}>
+                <p className="gh-token-hint">
+                  Go to <strong>GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong>. Create a token with <strong>Contents: Read and Write</strong> on the <code>chief-of-staff</code> repo only.
+                </p>
+                <input
+                  className="gh-token-input"
+                  type="password"
+                  placeholder="Paste token here"
+                  value={tokenDraft}
+                  onChange={e => setTokenDraft(e.target.value)}
+                  autoFocus
+                />
+                <div className="gh-token-actions">
+                  <button className="gh-token-save" type="submit" disabled={!tokenDraft.trim()}>Save</button>
+                  {ghToken && <button className="gh-token-clear" type="button" onClick={handleTokenClear}>Disconnect</button>}
+                  <button className="gh-token-cancel" type="button" onClick={() => setShowTokenInput(false)}>Cancel</button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
       </header>
 

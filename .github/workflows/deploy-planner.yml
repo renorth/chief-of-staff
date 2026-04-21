@@ -45,9 +45,6 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: planner
-        env:
-          VITE_MSAL_CLIENT_ID: ${{ secrets.VITE_MSAL_CLIENT_ID }}
-          VITE_MSAL_TENANT_ID: ${{ secrets.VITE_MSAL_TENANT_ID }}
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

@@ -1,5 +1,57 @@
-const KEY     = 'cos_planner_v1'
-const LOG_KEY = 'cos_worklog_v1'
+const KEY              = 'cos_planner_v1'
+const LOG_KEY          = 'cos_worklog_v1'
+const GITHUB_TOKEN_KEY = 'cos_github_token_v1'
+
+// ── GitHub Sync ───────────────────────────────────────────────────────────────
+
+const REPO = 'renorth/chief-of-staff'
+
+export function getGitHubToken() {
+  return localStorage.getItem(GITHUB_TOKEN_KEY) ?? ''
+}
+
+export function setGitHubToken(token) {
+  if (token?.trim()) localStorage.setItem(GITHUB_TOKEN_KEY, token.trim())
+  else localStorage.removeItem(GITHUB_TOKEN_KEY)
+}
+
+async function getFileSha(path, token) {
+  try {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json' },
+    })
+    if (!r.ok) return null
+    const data = await r.json()
+    return data.sha ?? null
+  } catch {
+    return null
+  }
+}
+
+export async function pushToGitHub(path, content, token) {
+  if (!token) return { ok: false, error: 'no-token' }
+  try {
+    const sha  = await getFileSha(path, token)
+    const body = {
+      message: `planner: sync ${new Date().toISOString()}`,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
+      ...(sha ? { sha } : {}),
+    }
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+      method:  'PUT',
+      headers: {
+        Authorization:  `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept:         'application/vnd.github.v3+json',
+      },
+      body: JSON.stringify(body),
+    })
+    if (r.status === 401 || r.status === 403) return { ok: false, error: 'bad-token' }
+    return { ok: r.ok, status: r.status }
+  } catch {
+    return { ok: false, error: 'network' }
+  }
+}
 
 /**
  * Load tasks from localStorage.

@@ -100,54 +100,89 @@ button { font-family: inherit; }
   justify-content: flex-end;
 }
 
-/* ─── OneDrive Sync ──────────────────────────────────────────────────────── */
-.od-sync-wrap {
-  display:     flex;
-  align-items: center;
-  gap:         6px;
-}
+/* ─── GitHub Sync ────────────────────────────────────────────────────────── */
+.gh-sync-wrap { position: relative; }
 
-.od-signin-btn {
+.gh-sync-btn {
   font-size:     13px;
-  padding:       5px 14px;
+  padding:       4px 12px;
   border-radius: 20px;
-  border:        1px solid #0078d4;
-  background:    #0078d4;
-  color:         #fff;
+  border:        1px solid var(--border);
+  background:    var(--bg-subtle);
   cursor:        pointer;
   font-family:   inherit;
   transition:    background .15s;
 }
-.od-signin-btn:hover { background: #006cbe; }
+.gh-sync-btn:hover           { background: var(--surface-hover); }
+.gh-sync-btn--connect        { color: var(--accent);  border-color: var(--accent); }
+.gh-sync-btn--connected      { color: var(--green);   border-color: var(--green); }
+.gh-sync-btn--error          { color: var(--red);     border-color: var(--red); }
 
-.od-status {
+.gh-sync-badge {
   font-size:     13px;
   padding:       4px 12px;
   border-radius: 20px;
   border:        1px solid var(--border-subtle);
   background:    var(--bg-subtle);
-  max-width:     200px;
-  overflow:      hidden;
-  text-overflow: ellipsis;
-  white-space:   nowrap;
 }
-.od-status--idle    { color: var(--text-secondary); }
-.od-status--loading { color: var(--text-muted); animation: pulse 1.2s ease-in-out infinite; }
-.od-status--saving  { color: var(--text-muted); animation: pulse 1.2s ease-in-out infinite; }
-.od-status--saved   { color: var(--green); border-color: rgba(63,185,80,.4); }
-.od-status--error   { color: var(--red);   border-color: rgba(248,81,73,.4); }
+.gh-sync-badge--saving { color: var(--text-muted); animation: pulse 1.2s ease-in-out infinite; }
+.gh-sync-badge--saved  { color: var(--green); border-color: rgba(63,185,80,.4); }
+.gh-sync-badge--error  { color: var(--red);   border-color: rgba(248,81,73,.4); }
 
-.od-signout-btn {
-  background:    transparent;
-  border:        none;
-  color:         var(--text-muted);
-  cursor:        pointer;
-  font-size:     12px;
-  padding:       2px 4px;
-  border-radius: 4px;
-  line-height:   1;
+.gh-token-form {
+  position:       absolute;
+  right:          0;
+  top:            calc(100% + 8px);
+  z-index:        100;
+  background:     var(--surface);
+  border:         1px solid var(--border);
+  border-radius:  var(--radius);
+  padding:        16px;
+  width:          340px;
+  box-shadow:     var(--shadow-md);
+  display:        flex;
+  flex-direction: column;
+  gap:            10px;
 }
-.od-signout-btn:hover { color: var(--text-secondary); }
+
+.gh-token-hint {
+  font-size:   12px;
+  color:       var(--text-secondary);
+  line-height: 1.5;
+}
+.gh-token-hint code {
+  font-family: monospace;
+  background:  var(--bg-inset);
+  padding:     1px 4px;
+  border-radius: 3px;
+}
+
+.gh-token-input {
+  width:         100%;
+  padding:       8px 10px;
+  background:    var(--bg-inset);
+  border:        1px solid var(--border);
+  border-radius: 6px;
+  color:         var(--text-primary);
+  font-size:     13px;
+  font-family:   monospace;
+}
+.gh-token-input:focus { outline: none; border-color: var(--accent); }
+
+.gh-token-actions { display: flex; gap: 8px; }
+
+.gh-token-save, .gh-token-clear, .gh-token-cancel {
+  font-size:     13px;
+  padding:       5px 12px;
+  border-radius: 6px;
+  border:        1px solid var(--border);
+  cursor:        pointer;
+  font-family:   inherit;
+}
+.gh-token-save            { background: var(--accent-btn); color: #fff; border-color: var(--accent-btn); }
+.gh-token-save:disabled   { opacity: .5; cursor: not-allowed; }
+.gh-token-clear           { background: transparent; color: var(--red); border-color: var(--red); }
+.gh-token-cancel          { background: transparent; color: var(--text-secondary); }
 
 /* ─── Task Input Card ────────────────────────────────────────────────────── */
 .input-card {
