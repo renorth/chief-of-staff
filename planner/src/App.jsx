@@ -11,7 +11,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId, getGitHubToken, setGitHubToken, pushToGitHub } from './utils/storage.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId, getGitHubToken, setGitHubToken, pushToGitHub, fetchGitHubFile } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
 import { COLUMNS, TAGS } from './constants.js'
@@ -51,6 +51,8 @@ export default function App() {
   const [tokenDraft, setTokenDraft]         = useState('')
   const ghTimerRef                          = useRef(null)
   const ghSyncingRef                        = useRef(false)
+  const ghTokenRef                          = useRef(ghToken)
+  useEffect(() => { ghTokenRef.current = ghToken }, [ghToken])
 
   // Load localStorage then pull latest WorkIQ sync from GitHub
   useEffect(() => {
@@ -83,14 +85,14 @@ export default function App() {
   // Persist work log
   useEffect(() => { saveWorkLog(workLog) }, [workLog])
 
-  // Sync from GitHub — GitHub is source of truth; unsaved local items are preserved
+  // Sync from GitHub — uses Contents API (bypasses CDN cache); token improves rate limits
   const syncFromGitHub = useCallback(async () => {
-    const base = 'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data'
+    const token = ghTokenRef.current
     ghSyncingRef.current = true
     try {
       const [remoteTasks, remoteLog] = await Promise.all([
-        fetch(`${base}/manual-tasks.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
-        fetch(`${base}/worklog.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetchGitHubFile('planner/data/manual-tasks.json', token),
+        fetchGitHubFile('planner/data/worklog.json', token),
       ])
       if (Array.isArray(remoteTasks)) {
         const deletedIds = loadDeletedTaskIds()

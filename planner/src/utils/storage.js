@@ -30,6 +30,19 @@ async function fetchFileSha(path, token) {
   }
 }
 
+// Fetch a JSON file via the Contents API (bypasses CDN cache; uses auth if token provided)
+export async function fetchGitHubFile(path, token) {
+  try {
+    const headers = { Accept: 'application/vnd.github.raw+json' }
+    if (token) headers.Authorization = `Bearer ${token}`
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, { headers })
+    if (!r.ok) return null
+    return r.json()
+  } catch {
+    return null
+  }
+}
+
 export async function pushToGitHub(path, content, token, _retrying = false) {
   if (!token) return { ok: false, error: 'no-token' }
   try {
