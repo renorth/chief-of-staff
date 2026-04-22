@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -44,12 +44,13 @@ export default function App() {
   const [syncing, setSyncing]       = useState(false)
   const [workLog, setWorkLog]       = useState(() => loadWorkLog())
 
-  const [ghToken, setGhToken]         = useState(() => getGitHubToken())
-  const [ghStatus, setGhStatus]       = useState('idle') // idle | saving | saved | error | bad-token
-  const [ghLoaded, setGhLoaded]       = useState(false)
+  const [ghToken, setGhToken]               = useState(() => getGitHubToken())
+  const [ghStatus, setGhStatus]             = useState('idle') // idle | saving | saved | error | bad-token
+  const [ghLoaded, setGhLoaded]             = useState(false)
   const [showTokenInput, setShowTokenInput] = useState(false)
-  const [tokenDraft, setTokenDraft]   = useState('')
-  const ghTimerRef                    = useRef(null)
+  const [tokenDraft, setTokenDraft]         = useState('')
+  const ghTimerRef                          = useRef(null)
+  const ghSyncingRef                        = useRef(false)
 
   // Load localStorage then pull latest WorkIQ sync from GitHub
   useEffect(() => {
@@ -82,39 +83,50 @@ export default function App() {
   // Persist work log
   useEffect(() => { saveWorkLog(workLog) }, [workLog])
 
-  // On load: fetch manual tasks + workLog saved from other devices (no token needed — raw URLs are public)
-  useEffect(() => {
+  // Sync from GitHub — GitHub is source of truth; unsaved local items are preserved
+  const syncFromGitHub = useCallback(async () => {
     const base = 'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data'
-    Promise.all([
-      fetch(`${base}/manual-tasks.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
-      fetch(`${base}/worklog.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
-    ]).then(([remoteTasks, remoteLog]) => {
-      if (Array.isArray(remoteTasks) && remoteTasks.length > 0) {
+    ghSyncingRef.current = true
+    try {
+      const [remoteTasks, remoteLog] = await Promise.all([
+        fetch(`${base}/manual-tasks.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${base}/worklog.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
+      ])
+      if (Array.isArray(remoteTasks)) {
         const deletedIds = loadDeletedTaskIds()
         setTasks(prev => {
-          const localIds = new Set(prev.map(t => t.id))
-          const toAdd    = remoteTasks.filter(t => !localIds.has(t.id) && !deletedIds.has(t.id))
-          return toAdd.length ? [...prev, ...toAdd] : prev
+          const nonManual  = prev.filter(t => t.source !== 'manual')
+          const remoteMap  = new Map(remoteTasks.map(t => [t.id, t]))
+          const localOnly  = prev.filter(t => t.source === 'manual' && !remoteMap.has(t.id) && !deletedIds.has(t.id))
+          return [...nonManual, ...remoteTasks.filter(t => !deletedIds.has(t.id)), ...localOnly]
         })
       }
-      if (Array.isArray(remoteLog) && remoteLog.length > 0) {
+      if (Array.isArray(remoteLog)) {
         const deletedIds = loadDeletedAdoIds()
         setWorkLog(prev => {
           const remoteMap = new Map(remoteLog.map(i => [i.id, i]))
-          const updated   = prev.map(i => remoteMap.has(i.id) ? remoteMap.get(i.id) : i)
-          const localIds  = new Set(prev.map(i => i.id))
-          const toAdd     = remoteLog.filter(i => !localIds.has(i.id) && !deletedIds.has(i.adoId))
-          return toAdd.length ? [...updated, ...toAdd] : updated
+          const localOnly = prev.filter(i => !remoteMap.has(i.id) && !deletedIds.has(i.adoId))
+          return [...remoteLog.filter(i => !deletedIds.has(i.adoId)), ...localOnly]
         })
       }
-    }).finally(() => setGhLoaded(true))
+    } finally {
+      ghSyncingRef.current = false
+    }
   }, [])
+
+  // Load on startup, then poll every 60 s so other devices pick up changes automatically
+  useEffect(() => {
+    syncFromGitHub().finally(() => setGhLoaded(true))
+    const id = setInterval(syncFromGitHub, 60_000)
+    return () => clearInterval(id)
+  }, [syncFromGitHub])
 
   // Debounced save to GitHub after any change (only after initial load)
   useEffect(() => {
     if (!ghToken || !ghLoaded) return
     clearTimeout(ghTimerRef.current)
     ghTimerRef.current = setTimeout(async () => {
+      if (ghSyncingRef.current) return
       setGhStatus('saving')
       const [r1, r2] = await Promise.all([
         pushToGitHub('planner/data/manual-tasks.json', tasks.filter(t => t.source === 'manual'), ghToken),
@@ -155,7 +167,6 @@ export default function App() {
     setTokenDraft('')
     setShowTokenInput(false)
     setGhStatus('idle')
-    setGhLoaded(false)
   }
 
   const handleTokenClear = () => {
