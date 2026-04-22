@@ -82,9 +82,8 @@ export default function App() {
   // Persist work log
   useEffect(() => { saveWorkLog(workLog) }, [workLog])
 
-  // On load: fetch manual tasks + workLog saved from other devices
+  // On load: fetch manual tasks + workLog saved from other devices (no token needed — raw URLs are public)
   useEffect(() => {
-    if (!ghToken) { setGhLoaded(true); return }
     const base = 'https://raw.githubusercontent.com/renorth/chief-of-staff/main/planner/data'
     Promise.all([
       fetch(`${base}/manual-tasks.json?t=${Date.now()}`).then(r => r.ok ? r.json() : null).catch(() => null),
@@ -109,7 +108,7 @@ export default function App() {
         })
       }
     }).finally(() => setGhLoaded(true))
-  }, [ghToken])
+  }, [])
 
   // Debounced save to GitHub after any change (only after initial load)
   useEffect(() => {
