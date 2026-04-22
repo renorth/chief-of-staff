@@ -124,7 +124,7 @@ export default function App() {
       const err = r1.error || r2.error
       if (err === 'bad-token') setGhStatus('bad-token')
       else if (r1.ok && r2.ok) setGhStatus('saved')
-      else setGhStatus('error')
+      else setGhStatus(err || 'error')
     }, 3000)
     return () => clearTimeout(ghTimerRef.current)
   }, [tasks, workLog, ghToken, ghLoaded])
@@ -348,8 +348,8 @@ export default function App() {
               <button className="gh-sync-btn gh-sync-btn--error" onClick={() => setShowTokenInput(v => !v)}>
                 Token invalid — fix
               </button>
-            ) : ghStatus === 'error' ? (
-              <span className="gh-sync-badge gh-sync-badge--error">Sync failed</span>
+            ) : ghStatus !== 'idle' && ghStatus !== 'saving' && ghStatus !== 'saved' && ghStatus !== 'bad-token' ? (
+              <span className="gh-sync-badge gh-sync-badge--error" title={ghStatus}>Sync failed</span>
             ) : (
               <button className="gh-sync-btn gh-sync-btn--connected" onClick={() => setShowTokenInput(v => !v)}>
                 GitHub connected

@@ -37,7 +37,7 @@ export async function pushToGitHub(path, content, token) {
       content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
       ...(sha ? { sha } : {}),
     }
-    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    const r    = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
       method:  'PUT',
       headers: {
         Authorization:  `Bearer ${token}`,
@@ -47,7 +47,11 @@ export async function pushToGitHub(path, content, token) {
       body: JSON.stringify(body),
     })
     if (r.status === 401 || r.status === 403) return { ok: false, error: 'bad-token' }
-    return { ok: r.ok, status: r.status }
+    if (!r.ok) {
+      const msg = await r.json().then(d => d.message).catch(() => '')
+      return { ok: false, error: `${r.status}${msg ? ': ' + msg : ''}` }
+    }
+    return { ok: true }
   } catch {
     return { ok: false, error: 'network' }
   }
