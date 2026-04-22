@@ -1,16 +1,5 @@
 [
   {
-    "id": "9f131488-bdb8-4c2b-9eae-41ddb4a8695f",
-    "title": "sdfg",
-    "category": "should_do_today",
-    "tag": "office_client",
-    "source": "manual",
-    "dueDate": "2026-04-01",
-    "completed": true,
-    "createdAt": "2026-03-24T02:48:07.169Z",
-    "completedAt": "2026-03-24T02:48:09.356Z"
-  },
-  {
     "id": "4a7b139a-620c-4b41-907d-ac854dd79fd3",
     "title": "OCG Review submission for sidepane",
     "category": "must_do_today",
