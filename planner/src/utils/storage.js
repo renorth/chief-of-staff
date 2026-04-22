@@ -15,7 +15,9 @@ export function setGitHubToken(token) {
   else localStorage.removeItem(GITHUB_TOKEN_KEY)
 }
 
-async function getFileSha(path, token) {
+const _shaCache = {}  // path → sha, updated after every successful write
+
+async function fetchFileSha(path, token) {
   try {
     const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.v3+json' },
@@ -28,16 +30,17 @@ async function getFileSha(path, token) {
   }
 }
 
-export async function pushToGitHub(path, content, token) {
+export async function pushToGitHub(path, content, token, _retrying = false) {
   if (!token) return { ok: false, error: 'no-token' }
   try {
-    const sha  = await getFileSha(path, token)
+    // Use cached SHA to avoid stale-read 409s; fall back to a fresh fetch
+    const sha = _shaCache[path] ?? await fetchFileSha(path, token)
     const body = {
       message: `planner: sync ${new Date().toISOString()}`,
       content: btoa(unescape(encodeURIComponent(JSON.stringify(content, null, 2)))),
       ...(sha ? { sha } : {}),
     }
-    const r    = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
       method:  'PUT',
       headers: {
         Authorization:  `Bearer ${token}`,
@@ -47,10 +50,18 @@ export async function pushToGitHub(path, content, token) {
       body: JSON.stringify(body),
     })
     if (r.status === 401 || r.status === 403) return { ok: false, error: 'bad-token' }
+    if (r.status === 409 && !_retrying) {
+      // SHA is stale — clear cache, re-fetch, and retry once
+      delete _shaCache[path]
+      return pushToGitHub(path, content, token, true)
+    }
     if (!r.ok) {
       const msg = await r.json().then(d => d.message).catch(() => '')
       return { ok: false, error: `${r.status}${msg ? ': ' + msg : ''}` }
     }
+    // Cache the new SHA from the response so the next write skips the GET
+    const data = await r.json().catch(() => null)
+    if (data?.content?.sha) _shaCache[path] = data.content.sha
     return { ok: true }
   } catch {
     return { ok: false, error: 'network' }
