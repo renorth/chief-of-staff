@@ -71,12 +71,14 @@ export async function pushToGitHub(path, content, token, _retrying = false) {
       body: JSON.stringify(body),
     })
     if (r.status === 401 || r.status === 403) return { ok: false, error: 'bad-token' }
-    // 409/422 = stale SHA — extract the current SHA from the error body (avoids a GET round-trip
-    // and is immune to CDN/replica caching that would give fetchFileSha a stale answer too)
+    // 409/422 = stale SHA — figure out the real current SHA and retry once
     if ((r.status === 409 || (r.status === 422 && sha)) && !_retrying) {
       const body409 = await r.json().catch(() => null)
-      const shaMatch = body409?.message?.match(/\b([0-9a-f]{40})\b/)
-      if (shaMatch) _shaCache[path] = shaMatch[1]
+      const msg    = body409?.message ?? ''
+      // "is at <current> but expected <stale>" → current SHA is explicit in the message
+      const isAt   = msg.match(/\bis at ([0-9a-f]{40})\b/)
+      if (isAt) _shaCache[path] = isAt[1]
+      // "does not match <stale>" → message only has the SHA we sent; need a fresh fetch
       else delete _shaCache[path]
       return pushToGitHub(path, content, token, true)
     }
