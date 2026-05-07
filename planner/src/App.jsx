@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -11,7 +11,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './components/Column.jsx'
 import TaskInput from './components/TaskInput.jsx'
 import TaskCard from './components/TaskCard.jsx'
-import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId, getGitHubToken, setGitHubToken, pushToGitHub, fetchGitHubFile, loadOneOnOnes, saveOneOnOnes, mergeOneOnOnes } from './utils/storage.js'
+import { loadTasks, saveTasks, mergeWorkiqTasks, loadWorkLog, saveWorkLog, mergeAdoItems, loadDeletedAdoIds, saveDeletedAdoId, loadDeletedTaskIds, saveDeletedTaskId, loadOneOnOnes, saveOneOnOnes } from './utils/storage.js'
 import Archive from './components/Archive.jsx'
 import WorkLog from './components/WorkLog.jsx'
 import OneOnOne from './components/OneOnOne.jsx'
@@ -47,15 +47,6 @@ export default function App() {
 
   const [oneOnOnes, setOneOnOnes]   = useState(() => loadOneOnOnes())
 
-  const [ghToken, setGhToken]               = useState(() => getGitHubToken())
-  const [ghStatus, setGhStatus]             = useState('idle') // idle | saving | saved | error | bad-token
-  const [ghLoaded, setGhLoaded]             = useState(false)
-  const [showTokenInput, setShowTokenInput] = useState(false)
-  const [tokenDraft, setTokenDraft]         = useState('')
-  const ghTimerRef                          = useRef(null)
-  const ghSyncingRef                        = useRef(false)
-  const ghTokenRef                          = useRef(ghToken)
-  useEffect(() => { ghTokenRef.current = ghToken }, [ghToken])
 
   // Load localStorage then pull latest WorkIQ sync from GitHub
   useEffect(() => {
@@ -91,67 +82,6 @@ export default function App() {
   // Persist 1:1s
   useEffect(() => { saveOneOnOnes(oneOnOnes) }, [oneOnOnes])
 
-  // Sync from GitHub — uses Contents API (bypasses CDN cache); token improves rate limits
-  const syncFromGitHub = useCallback(async () => {
-    const token = ghTokenRef.current
-    ghSyncingRef.current = true
-    try {
-      const [remoteTasks, remoteLog, remoteOon] = await Promise.all([
-        fetchGitHubFile('planner/data/manual-tasks.json', token),
-        fetchGitHubFile('planner/data/worklog.json', token),
-        fetchGitHubFile('planner/data/one-on-ones.json', token),
-      ])
-      if (Array.isArray(remoteTasks)) {
-        const deletedIds = loadDeletedTaskIds()
-        setTasks(prev => {
-          const nonManual  = prev.filter(t => t.source !== 'manual')
-          const remoteMap  = new Map(remoteTasks.map(t => [t.id, t]))
-          const localOnly  = prev.filter(t => t.source === 'manual' && !remoteMap.has(t.id) && !deletedIds.has(t.id))
-          return [...nonManual, ...remoteTasks.filter(t => !deletedIds.has(t.id)), ...localOnly]
-        })
-      }
-      if (Array.isArray(remoteLog)) {
-        const deletedIds = loadDeletedAdoIds()
-        setWorkLog(prev => {
-          const remoteMap = new Map(remoteLog.map(i => [i.id, i]))
-          const localOnly = prev.filter(i => !remoteMap.has(i.id) && !deletedIds.has(i.adoId))
-          return [...remoteLog.filter(i => !deletedIds.has(i.adoId)), ...localOnly]
-        })
-      }
-      if (Array.isArray(remoteOon)) {
-        setOneOnOnes(prev => mergeOneOnOnes(prev, remoteOon))
-      }
-    } finally {
-      ghSyncingRef.current = false
-    }
-  }, [])
-
-  // Load on startup, then poll every 60 s so other devices pick up changes automatically
-  useEffect(() => {
-    syncFromGitHub().finally(() => setGhLoaded(true))
-    const id = setInterval(syncFromGitHub, 60_000)
-    return () => clearInterval(id)
-  }, [syncFromGitHub])
-
-  // Debounced save to GitHub after any change (only after initial load)
-  useEffect(() => {
-    if (!ghToken || !ghLoaded) return
-    clearTimeout(ghTimerRef.current)
-    ghTimerRef.current = setTimeout(async () => {
-      if (ghSyncingRef.current) return
-      setGhStatus('saving')
-      const [r1, r2, r3] = await Promise.all([
-        pushToGitHub('planner/data/manual-tasks.json', tasks.filter(t => t.source === 'manual'), ghToken),
-        pushToGitHub('planner/data/worklog.json', workLog, ghToken),
-        pushToGitHub('planner/data/one-on-ones.json', oneOnOnes, ghToken),
-      ])
-      const err = r1.error || r2.error || r3.error
-      if (err === 'bad-token') setGhStatus('bad-token')
-      else if (r1.ok && r2.ok && r3.ok) setGhStatus('saved')
-      else setGhStatus(err || 'error')
-    }, 3000)
-    return () => clearTimeout(ghTimerRef.current)
-  }, [tasks, workLog, oneOnOnes, ghToken, ghLoaded])
 
   // Sync ADO items from GitHub on load
   useEffect(() => {
@@ -170,24 +100,6 @@ export default function App() {
       })
       .catch(() => {})  // offline or rate-limited — silently skip
   }, [])
-
-  // ── GitHub token ──────────────────────────────────────────────────────
-  const handleTokenSave = (e) => {
-    e.preventDefault()
-    const t = tokenDraft.trim()
-    setGitHubToken(t)
-    setGhToken(t)
-    setTokenDraft('')
-    setShowTokenInput(false)
-    setGhStatus('idle')
-  }
-
-  const handleTokenClear = () => {
-    setGitHubToken('')
-    setGhToken('')
-    setGhStatus('idle')
-    setShowTokenInput(false)
-  }
 
   // ── Add task ──────────────────────────────────────────────────────────
   const handleAdd = (title, category, tag, dueDate) => {
@@ -430,58 +342,6 @@ export default function App() {
                 </span>
               )
           }
-          <div className="gh-sync-wrap">
-            {!ghToken ? (
-              <button className="gh-sync-btn gh-sync-btn--connect" onClick={() => setShowTokenInput(v => !v)}>
-                Connect GitHub
-              </button>
-            ) : ghStatus === 'saving' ? (
-              <span className="gh-sync-badge gh-sync-badge--saving">Saving…</span>
-            ) : ghStatus === 'saved' ? (
-              <span className="gh-sync-badge gh-sync-badge--saved">Saved to GitHub</span>
-            ) : ghStatus === 'bad-token' ? (
-              <button className="gh-sync-btn gh-sync-btn--error" onClick={() => setShowTokenInput(v => !v)}>
-                Token invalid — fix
-              </button>
-            ) : ghStatus === 'no-read-permission' ? (
-              <button className="gh-sync-btn gh-sync-btn--error" onClick={() => setShowTokenInput(v => !v)}>
-                Token needs Read+Write — fix
-              </button>
-            ) : ghStatus !== 'idle' && ghStatus !== 'saving' && ghStatus !== 'saved' && ghStatus !== 'bad-token' && ghStatus !== 'no-read-permission' ? (
-              <button className="gh-sync-btn gh-sync-btn--error" onClick={() => setShowTokenInput(v => !v)} title={ghStatus}>
-                Sync error — {ghStatus.slice(0, 20)}
-              </button>
-            ) : (
-              <button className="gh-sync-btn gh-sync-btn--connected" onClick={() => setShowTokenInput(v => !v)}>
-                GitHub connected
-              </button>
-            )}
-            {showTokenInput && (
-              <form className="gh-token-form" onSubmit={handleTokenSave}>
-                {ghStatus === 'no-read-permission' && (
-                  <p className="gh-token-hint" style={{ color: 'var(--red)', marginBottom: 4 }}>
-                    Your token is missing <strong>Contents: Read</strong> access. Create a new token with both Read <em>and</em> Write checked.
-                  </p>
-                )}
-                <p className="gh-token-hint">
-                  GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → <strong>Repository permissions → Contents → Access: Read and write</strong>
-                </p>
-                <input
-                  className="gh-token-input"
-                  type="password"
-                  placeholder="Paste token here"
-                  value={tokenDraft}
-                  onChange={e => setTokenDraft(e.target.value)}
-                  autoFocus
-                />
-                <div className="gh-token-actions">
-                  <button className="gh-token-save" type="submit" disabled={!tokenDraft.trim()}>Save</button>
-                  {ghToken && <button className="gh-token-clear" type="button" onClick={handleTokenClear}>Disconnect</button>}
-                  <button className="gh-token-cancel" type="button" onClick={() => setShowTokenInput(false)}>Cancel</button>
-                </div>
-              </form>
-            )}
-          </div>
         </div>
       </header>
 
