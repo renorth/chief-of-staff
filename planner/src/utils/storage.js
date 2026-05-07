@@ -20,8 +20,7 @@ const _shaCache = {}  // path → sha, updated after every successful write
 
 async function fetchFileSha(path, token) {
   try {
-    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}`, {
-      cache: 'no-store',
+    const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${path}?_=${Date.now()}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' },
     })
     if (!r.ok) {
