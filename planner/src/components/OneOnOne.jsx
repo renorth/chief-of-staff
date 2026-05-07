@@ -21,25 +21,19 @@ function TopicRow({ personId, topic, onDeleteTopic, onTogglePin, onAddTopicNote,
 
   return (
     <li className={`oon-topic${topic.pinned ? ' oon-topic--pinned' : ''}`}>
-      <div className="oon-topic-row">
+      <div className="oon-topic-row" onClick={() => setExpanded(s => !s)}>
         <button
-          className="oon-pin-btn"
+          className={`oon-check${topic.pinned ? ' oon-check--pinned' : ''}`}
           title={topic.pinned ? 'Unpin' : 'Pin (keep after discussed)'}
-          onClick={() => onTogglePin(personId, topic.id)}
-        >
-          {topic.pinned ? '📌' : '○'}
-        </button>
+          onClick={e => { e.stopPropagation(); onTogglePin(personId, topic.id) }}
+        />
         <span className="oon-topic-text">{topic.text}</span>
-        <button
-          className={`oon-notes-expand${expanded ? ' oon-notes-expand--open' : ''}`}
-          onClick={() => setExpanded(s => !s)}
-          title="Toggle notes"
-        >
-          {expanded ? '▾' : '▸'}{notes.length > 0 ? ` ${notes.length}` : ''}
-        </button>
+        {notes.length > 0 && (
+          <span className="oon-note-badge">{notes.length}</span>
+        )}
         <button
           className="btn-icon btn-icon--delete"
-          onClick={() => onDeleteTopic(personId, topic.id)}
+          onClick={e => { e.stopPropagation(); onDeleteTopic(personId, topic.id) }}
           title="Remove topic"
         >✕</button>
       </div>

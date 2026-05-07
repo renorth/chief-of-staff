@@ -1219,23 +1219,50 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   align-items: center;
   gap:         7px;
   padding:     5px 12px;
+  cursor:      pointer;
   transition:  background .1s;
 }
 
-.oon-pin-btn {
-  background:  transparent;
-  border:      none;
-  cursor:      pointer;
-  font-size:   14px;
-  line-height: 1;
-  color:       var(--text-muted);
-  padding:     0;
-  flex-shrink: 0;
-  width:       20px;
-  text-align:  center;
-  transition:  opacity .1s;
+.oon-check {
+  flex-shrink:   0;
+  width:         17px;
+  height:        17px;
+  border-radius: 50%;
+  border:        2px solid var(--border);
+  background:    transparent;
+  cursor:        pointer;
+  padding:       0;
+  position:      relative;
+  transition:    border-color .15s, background .15s;
 }
-.oon-pin-btn:hover { opacity: .7; }
+.oon-check:hover { border-color: var(--oon-accent); }
+.oon-check--pinned {
+  border-color: var(--oon-accent);
+  background:   var(--oon-accent);
+}
+.oon-check--pinned::after {
+  content:   '';
+  position:  absolute;
+  top:       2px;
+  left:      5px;
+  width:     4px;
+  height:    7px;
+  border:    2px solid #0d1117;
+  border-top:  none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.oon-note-badge {
+  flex-shrink:   0;
+  font-size:     11px;
+  font-weight:   600;
+  color:         var(--oon-accent);
+  background:    rgba(8,145,178,.12);
+  border-radius: 20px;
+  padding:       1px 6px;
+  line-height:   1.6;
+}
 
 .oon-topic-text {
   flex:       1;
@@ -1249,23 +1276,6 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   color: var(--text-primary);
 }
 
-.oon-notes-expand {
-  flex-shrink:   0;
-  background:    transparent;
-  border:        none;
-  cursor:        pointer;
-  font-family:   var(--font);
-  font-size:     11px;
-  font-weight:   600;
-  color:         var(--text-muted);
-  padding:       2px 6px;
-  border-radius: 4px;
-  white-space:   nowrap;
-  min-width:     28px;
-  transition:    color .1s, background .1s;
-}
-.oon-notes-expand:hover,
-.oon-notes-expand--open { color: var(--oon-accent); background: rgba(8,145,178,.1); }
 
 .oon-topic-notes {
   padding:        6px 12px 10px 38px;
