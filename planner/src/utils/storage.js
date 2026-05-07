@@ -65,17 +65,17 @@ export async function pushToGitHub(path, content, token, _retrying = false) {
     })
     if (r.status === 401 || r.status === 403) return { ok: false, error: 'bad-token' }
     if (r.status === 409 && !_retrying) {
-      // SHA is stale — clear cache, re-fetch, and retry once
       delete _shaCache[path]
       return pushToGitHub(path, content, token, true)
     }
     if (r.status === 422 && !sha) {
-      // File exists but SHA fetch failed — token likely missing Contents: Read permission
       return { ok: false, error: 'no-read-permission' }
     }
     if (!r.ok) {
       const msg = await r.json().then(d => d.message).catch(() => '')
-      return { ok: false, error: `${r.status}${msg ? ': ' + msg : ''}` }
+      const err = `${r.status}${msg ? ': ' + msg : ''}`
+      console.error(`[GitHub sync] PUT ${path} failed — ${err}`)
+      return { ok: false, error: err }
     }
     // Cache the new SHA from the response so the next write skips the GET
     const data = await r.json().catch(() => null)

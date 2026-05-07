@@ -448,7 +448,9 @@ export default function App() {
                 Token needs Read+Write — fix
               </button>
             ) : ghStatus !== 'idle' && ghStatus !== 'saving' && ghStatus !== 'saved' && ghStatus !== 'bad-token' && ghStatus !== 'no-read-permission' ? (
-              <span className="gh-sync-badge gh-sync-badge--error" title={ghStatus}>Sync failed</span>
+              <button className="gh-sync-btn gh-sync-btn--error" onClick={() => setShowTokenInput(v => !v)} title={ghStatus}>
+                Sync error — {ghStatus.slice(0, 20)}
+              </button>
             ) : (
               <button className="gh-sync-btn gh-sync-btn--connected" onClick={() => setShowTokenInput(v => !v)}>
                 GitHub connected
