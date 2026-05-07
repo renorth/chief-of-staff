@@ -89,7 +89,8 @@ export async function pushToGitHub(path, content, token, _retrying = false) {
     const data = await r.json().catch(() => null)
     if (data?.content?.sha) _shaCache[path] = data.content.sha
     return { ok: true }
-  } catch {
+  } catch (e) {
+    console.error('[gh] pushToGitHub threw:', e)
     return { ok: false, error: 'network' }
   }
 }
