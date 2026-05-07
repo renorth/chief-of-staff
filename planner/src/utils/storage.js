@@ -8,11 +8,12 @@ const GITHUB_TOKEN_KEY = 'cos_github_token_v1'
 const REPO = 'renorth/chief-of-staff'
 
 export function getGitHubToken() {
-  return localStorage.getItem(GITHUB_TOKEN_KEY) ?? ''
+  return (localStorage.getItem(GITHUB_TOKEN_KEY) ?? '').replace(/[^\x20-\x7E]/g, '').trim()
 }
 
 export function setGitHubToken(token) {
-  if (token?.trim()) localStorage.setItem(GITHUB_TOKEN_KEY, token.trim())
+  const sanitized = (token ?? '').replace(/[^\x20-\x7E]/g, '').trim()
+  if (sanitized) localStorage.setItem(GITHUB_TOKEN_KEY, sanitized)
   else localStorage.removeItem(GITHUB_TOKEN_KEY)
 }
 
