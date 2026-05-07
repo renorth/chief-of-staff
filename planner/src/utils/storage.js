@@ -71,9 +71,13 @@ export async function pushToGitHub(path, content, token, _retrying = false) {
       body: JSON.stringify(body),
     })
     if (r.status === 401 || r.status === 403) return { ok: false, error: 'bad-token' }
-    // 409 = commit conflict; 422 with sha = stale SHA value — both need a fresh fetch + retry
+    // 409/422 = stale SHA — extract the current SHA from the error body (avoids a GET round-trip
+    // and is immune to CDN/replica caching that would give fetchFileSha a stale answer too)
     if ((r.status === 409 || (r.status === 422 && sha)) && !_retrying) {
-      delete _shaCache[path]
+      const body409 = await r.json().catch(() => null)
+      const shaMatch = body409?.message?.match(/\b([0-9a-f]{40})\b/)
+      if (shaMatch) _shaCache[path] = shaMatch[1]
+      else delete _shaCache[path]
       return pushToGitHub(path, content, token, true)
     }
     // 422 without sha = file exists but we couldn't read it — missing Read permission
