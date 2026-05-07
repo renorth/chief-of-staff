@@ -75,5 +75,59 @@
     "completed": true,
     "createdAt": "2026-04-17T14:22:17.399Z",
     "completedAt": "2026-04-17T15:40:34.846Z"
+  },
+  {
+    "id": "dec17c1c-f251-4cd1-9144-f527292fa1aa",
+    "title": "Josh's Perspective",
+    "category": "should_do_today",
+    "tag": null,
+    "source": "manual",
+    "dueDate": null,
+    "completed": true,
+    "createdAt": "2026-04-27T17:29:24.909Z",
+    "completedAt": "2026-04-27T18:47:09.931Z"
+  },
+  {
+    "id": "8385fea7-f8d3-48ed-9b81-549ed2a74461",
+    "title": "Anthony's Perspective",
+    "category": "should_do_today",
+    "tag": null,
+    "source": "manual",
+    "dueDate": null,
+    "completed": true,
+    "createdAt": "2026-04-27T17:29:32.485Z",
+    "completedAt": "2026-04-27T18:47:10.636Z"
+  },
+  {
+    "id": "eab0243c-387b-4ba2-9495-daf3ec03edd9",
+    "title": "Shruti's Perspective",
+    "category": "should_do_today",
+    "tag": null,
+    "source": "manual",
+    "dueDate": null,
+    "completed": true,
+    "createdAt": "2026-04-27T17:29:42.115Z",
+    "completedAt": "2026-04-27T18:47:11.131Z"
+  },
+  {
+    "id": "e6ac78db-ce3e-4d52-af14-94ebdd25c8a0",
+    "title": "Book Chicago Flights",
+    "category": "must_do_today",
+    "tag": "personal",
+    "source": "manual",
+    "dueDate": null,
+    "completed": false,
+    "createdAt": "2026-04-27T17:29:50.545Z"
+  },
+  {
+    "id": "2b895f7a-8756-4d58-83a3-9d16f821bb0d",
+    "title": "Write message in AI learning",
+    "category": "should_do_today",
+    "tag": null,
+    "source": "manual",
+    "dueDate": null,
+    "completed": true,
+    "createdAt": "2026-04-29T15:52:00.410Z",
+    "completedAt": "2026-05-07T15:13:06.190Z"
   }
 ]
