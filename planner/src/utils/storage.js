@@ -1,5 +1,6 @@
 const KEY              = 'cos_planner_v1'
 const LOG_KEY          = 'cos_worklog_v1'
+const OON_KEY          = 'cos_one_on_ones_v1'
 const GITHUB_TOKEN_KEY = 'cos_github_token_v1'
 
 // ── GitHub Sync ───────────────────────────────────────────────────────────────
@@ -67,6 +68,10 @@ export async function pushToGitHub(path, content, token, _retrying = false) {
       // SHA is stale — clear cache, re-fetch, and retry once
       delete _shaCache[path]
       return pushToGitHub(path, content, token, true)
+    }
+    if (r.status === 422 && !sha) {
+      // File exists but SHA fetch failed — token likely missing Contents: Read permission
+      return { ok: false, error: 'no-read-permission' }
     }
     if (!r.ok) {
       const msg = await r.json().then(d => d.message).catch(() => '')
@@ -226,6 +231,53 @@ export function saveDeletedTaskId(id) {
  *  - New remote tasks are appended, unless permanently deleted by user.
  *  - Remote tasks that no longer appear in the fresh sync are removed.
  */
+// ── 1:1 Topics ────────────────────────────────────────────────────────────────
+
+const DEFAULT_PEOPLE = [
+  { id: 'kristen', name: 'Kristen', topics: [], notes: [] },
+  { id: 'vahan',   name: 'Vahan',   topics: [], notes: [] },
+  { id: 'katie',   name: 'Katie',   topics: [], notes: [] },
+  { id: 'anthony', name: 'Anthony', topics: [], notes: [] },
+]
+
+export function loadOneOnOnes() {
+  try {
+    const raw = localStorage.getItem(OON_KEY)
+    if (raw) {
+      const data = JSON.parse(raw)
+      if (Array.isArray(data)) {
+        return data.map(p => ({
+          ...p,
+          topics: Array.isArray(p.topics) ? p.topics : [],
+          notes:  Array.isArray(p.notes)  ? p.notes  : [],
+        }))
+      }
+    }
+  } catch {
+    localStorage.removeItem(OON_KEY)
+  }
+  return DEFAULT_PEOPLE.map(p => ({ ...p }))
+}
+
+export function saveOneOnOnes(people) {
+  try {
+    localStorage.setItem(OON_KEY, JSON.stringify(people))
+  } catch {}
+}
+
+export function mergeOneOnOnes(local, remote) {
+  if (!Array.isArray(remote) || remote.length === 0) return local
+  const localMap = new Map(local.map(p => [p.id, p]))
+  return remote.map(rp => {
+    const lp = localMap.get(rp.id)
+    if (!lp) return rp
+    // Remote is source of truth for topics/notes; local wins if remote hasn't changed
+    return rp
+  })
+}
+
+// ── Tasks ─────────────────────────────────────────────────────────────────────
+
 export function mergeWorkiqTasks(existing, incoming, deletedIds = new Set()) {
   const manual      = existing.filter(t => t.source === 'manual')
   const incomingIds = new Set(incoming.map(t => t.id))
