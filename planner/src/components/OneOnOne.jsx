@@ -20,17 +20,18 @@ function TopicRow({ personId, topic, onDeleteTopic, onTogglePin, onAddTopicNote,
   const notes = topic.notes ?? []
 
   return (
-    <li className={`oon-topic${topic.pinned ? ' oon-topic--pinned' : ''}`}>
-      <div className="oon-topic-row" onClick={() => setExpanded(s => !s)}>
+    <li className="oon-topic-item">
+      <div className="oon-topic-card" onClick={() => setExpanded(s => !s)}>
+        <span className="worklog-chevron">{expanded ? '▾' : '▸'}</span>
         <button
           className={`oon-check${topic.pinned ? ' oon-check--pinned' : ''}`}
           title={topic.pinned ? 'Unpin' : 'Pin (keep after discussed)'}
           onClick={e => { e.stopPropagation(); onTogglePin(personId, topic.id) }}
         />
-        <span className="oon-topic-text">{topic.text}</span>
-        {notes.length > 0 && (
-          <span className="oon-note-badge">{notes.length}</span>
-        )}
+        <span className="oon-topic-title">{topic.text}</span>
+        <span className="oon-note-count">
+          {notes.length} note{notes.length !== 1 ? 's' : ''}
+        </span>
         <button
           className="btn-icon btn-icon--delete"
           onClick={e => { e.stopPropagation(); onDeleteTopic(personId, topic.id) }}
