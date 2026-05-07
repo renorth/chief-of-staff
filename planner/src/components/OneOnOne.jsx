@@ -6,7 +6,90 @@ function todayLabel() {
   })
 }
 
-function PersonCard({ person, onAddTopic, onDeleteTopic, onTogglePin, onAddNote, onDeleteNote }) {
+function TopicRow({ personId, topic, onDeleteTopic, onTogglePin, onAddTopicNote, onDeleteTopicNote }) {
+  const [expanded, setExpanded] = useState(false)
+  const [noteDraft, setNoteDraft] = useState('')
+
+  const handleAddNote = () => {
+    const text = noteDraft.trim()
+    if (!text) return
+    onAddTopicNote(personId, topic.id, text)
+    setNoteDraft('')
+  }
+
+  const notes = topic.notes ?? []
+
+  return (
+    <li className={`oon-topic${topic.pinned ? ' oon-topic--pinned' : ''}`}>
+      <div className="oon-topic-row">
+        <button
+          className="oon-pin-btn"
+          title={topic.pinned ? 'Unpin' : 'Pin (keep after discussed)'}
+          onClick={() => onTogglePin(personId, topic.id)}
+        >
+          {topic.pinned ? '📌' : '○'}
+        </button>
+        <span className="oon-topic-text">{topic.text}</span>
+        <button
+          className={`oon-notes-expand${expanded ? ' oon-notes-expand--open' : ''}`}
+          onClick={() => setExpanded(s => !s)}
+          title="Toggle notes"
+        >
+          {expanded ? '▾' : '▸'} {notes.length > 0 ? notes.length : ''}
+        </button>
+        <button
+          className="btn-icon btn-icon--delete"
+          onClick={() => onDeleteTopic(personId, topic.id)}
+          title="Remove topic"
+        >✕</button>
+      </div>
+
+      {expanded && (
+        <div className="oon-topic-notes">
+          <div className="oon-note-add">
+            <span className="worklog-note-date worklog-note-date--today">{todayLabel()}</span>
+            <textarea
+              className="worklog-textarea"
+              placeholder="Add a note…"
+              rows={2}
+              value={noteDraft}
+              onChange={e => setNoteDraft(e.target.value)}
+              onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleAddNote() } }}
+            />
+            <button
+              className="btn-add btn-add--sm"
+              onClick={handleAddNote}
+              disabled={!noteDraft.trim()}
+            >Log</button>
+          </div>
+
+          {notes.length === 0 && (
+            <p className="worklog-notes-empty">No notes yet.</p>
+          )}
+
+          {notes.slice().reverse().map(note => (
+            <div key={note.id} className="worklog-note">
+              <span className="worklog-note-date">{note.date}</span>
+              <span className="worklog-note-text">{note.text}</span>
+              <button
+                className="btn-icon btn-icon--delete"
+                onClick={() => onDeleteTopicNote(personId, topic.id, note.id)}
+                title="Delete note"
+              >✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </li>
+  )
+}
+
+function PersonCard({
+  person,
+  onAddTopic, onDeleteTopic, onTogglePin,
+  onAddTopicNote, onDeleteTopicNote,
+  onAddNote, onDeleteNote,
+}) {
   const [topicDraft, setTopicDraft] = useState('')
   const [noteDraft, setNoteDraft]   = useState('')
   const [showNotes, setShowNotes]   = useState(false)
@@ -25,8 +108,8 @@ function PersonCard({ person, onAddTopic, onDeleteTopic, onTogglePin, onAddNote,
     setNoteDraft('')
   }
 
-  const pinned   = person.topics.filter(t => t.pinned)
-  const regular  = person.topics.filter(t => !t.pinned)
+  const pinned    = person.topics.filter(t => t.pinned)
+  const regular   = person.topics.filter(t => !t.pinned)
   const allTopics = [...pinned, ...regular]
 
   return (
@@ -52,21 +135,15 @@ function PersonCard({ person, onAddTopic, onDeleteTopic, onTogglePin, onAddNote,
       {allTopics.length > 0 && (
         <ul className="oon-topic-list">
           {allTopics.map(topic => (
-            <li key={topic.id} className={`oon-topic${topic.pinned ? ' oon-topic--pinned' : ''}`}>
-              <button
-                className="oon-pin-btn"
-                title={topic.pinned ? 'Unpin' : 'Pin (keep after discussed)'}
-                onClick={() => onTogglePin(person.id, topic.id)}
-              >
-                {topic.pinned ? '📌' : '○'}
-              </button>
-              <span className="oon-topic-text">{topic.text}</span>
-              <button
-                className="btn-icon btn-icon--delete"
-                onClick={() => onDeleteTopic(person.id, topic.id)}
-                title="Remove topic"
-              >✕</button>
-            </li>
+            <TopicRow
+              key={topic.id}
+              personId={person.id}
+              topic={topic}
+              onDeleteTopic={onDeleteTopic}
+              onTogglePin={onTogglePin}
+              onAddTopicNote={onAddTopicNote}
+              onDeleteTopicNote={onDeleteTopicNote}
+            />
           ))}
         </ul>
       )}
@@ -77,7 +154,7 @@ function PersonCard({ person, onAddTopic, onDeleteTopic, onTogglePin, onAddNote,
 
       <div className="oon-notes-section">
         <button className="oon-notes-toggle" onClick={() => setShowNotes(s => !s)}>
-          {showNotes ? '▾' : '▸'} Notes
+          {showNotes ? '▾' : '▸'} General Notes
           {person.notes.length > 0 && <span className="oon-notes-count">{person.notes.length}</span>}
         </button>
 
@@ -97,9 +174,7 @@ function PersonCard({ person, onAddTopic, onDeleteTopic, onTogglePin, onAddNote,
                 className="btn-add btn-add--sm"
                 onClick={handleAddNote}
                 disabled={!noteDraft.trim()}
-              >
-                Log
-              </button>
+              >Log</button>
             </div>
 
             {person.notes.length === 0 && (
@@ -124,7 +199,12 @@ function PersonCard({ person, onAddTopic, onDeleteTopic, onTogglePin, onAddNote,
   )
 }
 
-export default function OneOnOne({ people, onAddTopic, onDeleteTopic, onTogglePin, onAddNote, onDeleteNote }) {
+export default function OneOnOne({
+  people,
+  onAddTopic, onDeleteTopic, onTogglePin,
+  onAddTopicNote, onDeleteTopicNote,
+  onAddNote, onDeleteNote,
+}) {
   const [open, setOpen] = useState(true)
 
   return (
@@ -145,6 +225,8 @@ export default function OneOnOne({ people, onAddTopic, onDeleteTopic, onTogglePi
               onAddTopic={onAddTopic}
               onDeleteTopic={onDeleteTopic}
               onTogglePin={onTogglePin}
+              onAddTopicNote={onAddTopicNote}
+              onDeleteTopicNote={onDeleteTopicNote}
               onAddNote={onAddNote}
               onDeleteNote={onDeleteNote}
             />

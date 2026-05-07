@@ -1130,6 +1130,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   margin-top:  24px;
   border-top:  1px solid var(--border-subtle);
   padding-top: 16px;
+  --oon-accent: #2dd4bf;
 }
 
 .oon-grid {
@@ -1153,7 +1154,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   align-items:     center;
   justify-content: space-between;
   padding:         10px 14px 9px;
-  border-top:      2px solid var(--accent);
+  border-top:      2px solid var(--oon-accent);
   border-bottom:   1px solid var(--border-subtle);
   background:      var(--bg-subtle);
 }
@@ -1167,8 +1168,8 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 
 .oon-topic-count {
   font-size:     12px;
-  color:         var(--accent);
-  background:    rgba(88,166,255,.12);
+  color:         var(--oon-accent);
+  background:    rgba(45,212,191,.12);
   border-radius: 20px;
   padding:       1px 8px;
   font-weight:   600;
@@ -1195,7 +1196,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   transition:    border-color .12s;
 }
 .oon-input::placeholder { color: var(--text-muted); }
-.oon-input:focus        { border-color: var(--accent); }
+.oon-input:focus        { border-color: var(--oon-accent); }
 
 .oon-topic-list {
   list-style: none;
@@ -1204,17 +1205,21 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 }
 
 .oon-topic {
+  transition: background .1s;
+}
+
+.oon-topic:hover > .oon-topic-row { background: var(--surface-hover); }
+
+.oon-topic--pinned > .oon-topic-row {
+  background: rgba(45,212,191,.06);
+}
+
+.oon-topic-row {
   display:     flex;
   align-items: center;
   gap:         7px;
   padding:     5px 12px;
   transition:  background .1s;
-}
-
-.oon-topic:hover { background: var(--surface-hover); }
-
-.oon-topic--pinned {
-  background: rgba(88,166,255,.06);
 }
 
 .oon-pin-btn {
@@ -1242,6 +1247,33 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 
 .oon-topic--pinned .oon-topic-text {
   color: var(--text-primary);
+}
+
+.oon-notes-expand {
+  flex-shrink:   0;
+  background:    transparent;
+  border:        none;
+  cursor:        pointer;
+  font-family:   var(--font);
+  font-size:     11px;
+  font-weight:   600;
+  color:         var(--text-muted);
+  padding:       2px 6px;
+  border-radius: 4px;
+  white-space:   nowrap;
+  min-width:     28px;
+  transition:    color .1s, background .1s;
+}
+.oon-notes-expand:hover,
+.oon-notes-expand--open { color: var(--oon-accent); background: rgba(45,212,191,.1); }
+
+.oon-topic-notes {
+  padding:        6px 12px 10px 38px;
+  border-top:     1px solid var(--border-subtle);
+  background:     var(--bg-inset);
+  display:        flex;
+  flex-direction: column;
+  gap:            6px;
 }
 
 .oon-empty {
@@ -1275,7 +1307,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   text-align:      left;
   transition:      background .1s, color .1s;
 }
-.oon-notes-toggle:hover { background: var(--bg-subtle); color: var(--text-secondary); }
+.oon-notes-toggle:hover { background: rgba(45,212,191,.08); color: var(--oon-accent); }
 
 .oon-notes-count {
   font-size:     11px;

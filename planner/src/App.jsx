@@ -279,7 +279,7 @@ export default function App() {
     setOneOnOnes(prev => prev.map(p =>
       p.id !== personId ? p : {
         ...p,
-        topics: [...p.topics, { id: crypto.randomUUID(), text, pinned: false }],
+        topics: [...p.topics, { id: crypto.randomUUID(), text, pinned: false, notes: [] }],
       }
     ))
 
@@ -314,6 +314,36 @@ export default function App() {
   const oonDeleteNote = (personId, noteId) =>
     setOneOnOnes(prev => prev.map(p =>
       p.id !== personId ? p : { ...p, notes: p.notes.filter(n => n.id !== noteId) }
+    ))
+
+  const oonAddTopicNote = (personId, topicId, text) =>
+    setOneOnOnes(prev => prev.map(p =>
+      p.id !== personId ? p : {
+        ...p,
+        topics: p.topics.map(t =>
+          t.id !== topicId ? t : {
+            ...t,
+            notes: [
+              ...(t.notes ?? []),
+              {
+                id:   crypto.randomUUID(),
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                text,
+              },
+            ],
+          }
+        ),
+      }
+    ))
+
+  const oonDeleteTopicNote = (personId, topicId, noteId) =>
+    setOneOnOnes(prev => prev.map(p =>
+      p.id !== personId ? p : {
+        ...p,
+        topics: p.topics.map(t =>
+          t.id !== topicId ? t : { ...t, notes: (t.notes ?? []).filter(n => n.id !== noteId) }
+        ),
+      }
     ))
 
   const handleWorkLogReorder = (activeId, overId) =>
@@ -482,6 +512,8 @@ export default function App() {
         onAddTopic={oonAddTopic}
         onDeleteTopic={oonDeleteTopic}
         onTogglePin={oonTogglePin}
+        onAddTopicNote={oonAddTopicNote}
+        onDeleteTopicNote={oonDeleteTopicNote}
         onAddNote={oonAddNote}
         onDeleteNote={oonDeleteNote}
       />
