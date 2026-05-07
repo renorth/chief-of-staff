@@ -206,5 +206,225 @@
       }
     ],
     "createdAt": "2026-04-15T22:41:09.278Z"
+  },
+  {
+    "id": "4c224d46-f5ab-4fc1-af57-e398bceeb428",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11031987",
+    "title": "AI sharing - Update value props across Office Checkout, DIME and OOBE",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "08ba9b2f-0599-4b2a-bf16-83c0cf1aa43f",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11031231",
+    "title": "[Approved] Trial Conversion - Setup Progress Tracker in Win32",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "b087c230-a95d-4dd3-b692-551011259a5e",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9889282",
+    "title": "Lumos-Dime URL Migration for OCDI Initiative",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "2abe467f-a58e-4cd6-b1fa-62af454bb961",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/8974067",
+    "title": "Subscription expired Persado String Variant",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "8ea0f149-6b21-413f-bf53-b6f39f67a733",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11385414",
+    "title": "3mo Free offer - Rogers",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "d2590b9f-4f35-4d8f-89c0-fb10437896f7",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/3444582",
+    "title": "Licensing vNext: Service Delivered Grace on Win32 for signed in users",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "b333e54b-2205-41ff-9755-04105b514ded",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9965184",
+    "title": "Migrate Product Key Dialog to RN Version",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "2c38c660-6c93-4546-8a9f-fcf1badc3c12",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9693704",
+    "title": "Improve UX flow from Product Key dialog",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "e43439e2-4873-44fb-af73-72eaa30cd2e6",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/11153801",
+    "title": "Disable Dime Trials in China",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "6ad61fdf-07ed-48cc-985c-b5a9a0f557f6",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10712267",
+    "title": "Post Trial Start Page in Dime",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "f7cb48bc-3fbe-471b-bc99-029677eb7f55",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10665512",
+    "title": "Trial Confirmation Value Page in SC/OOBE",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "679fd6f1-44de-413d-ae08-cb34708ab216",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10076778",
+    "title": "Update Harmony offramps as needed",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "4c6813bb-c1be-44ab-a7f1-721c6215bff3",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9027303",
+    "title": "[Office Setup SDX] [Win32] [Screen reader]: Screen reader doesn't announce the characters in product key edit field when users navigate with left/ right arrow keys.",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "1d716565-1e8f-4106-8a11-caf8c260e444",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10892627",
+    "title": "Remove 5-day Consumer Grace Period Experiment",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "2bb3cf9b-9daa-4162-aa1a-ae0e1769c802",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10702339",
+    "title": "M365 Premium & LinkedIn Student Promo � Office Checkout",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "0596b40a-5099-41f4-8879-e9be4b1ba008",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9975379",
+    "title": "Test extended grace period in non-eRFM countries",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "aaee4594-67ae-45d7-9644-b5bab6e7756f",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10665525",
+    "title": "EDU Offer in Dime",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "fb81fd99-b07c-44df-a837-ae0d91f1393e",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/10423955",
+    "title": "Arbutus Premium Student Offer",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "9d3807bb-101c-4fa3-bdea-2495db5a51b7",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9658255",
+    "title": "Add Essentials app switcher to the apps",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "0e192129-54b2-4d90-b360-996cdbc16295",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/8895901",
+    "title": "Add Defender Identity Theft Monitoring to Existing Subscriber Page in SCOOBE",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "3fd1cfda-c838-46cd-b7b1-fc0c0261ff66",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/9167680",
+    "title": "SC/OOBE value page catered to Perpetual users",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
+  },
+  {
+    "id": "cb8b27a3-ab08-4bf6-bf62-58486220f2e5",
+    "adoId": "https://dev.azure.com/Office/OC/_workitems/edit/5645007",
+    "title": "Provide correct discount to HUP (Home Use Program) eligible users in (SC)OOBE",
+    "status": "New",
+    "tag": null,
+    "notes": [],
+    "source": "ado",
+    "createdAt": "2026-05-07T16:30:38.322Z"
   }
 ]
