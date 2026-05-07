@@ -64,10 +64,12 @@ export async function pushToGitHub(path, content, token, _retrying = false) {
       body: JSON.stringify(body),
     })
     if (r.status === 401 || r.status === 403) return { ok: false, error: 'bad-token' }
-    if (r.status === 409 && !_retrying) {
+    // 409 = commit conflict; 422 with sha = stale SHA value — both need a fresh fetch + retry
+    if ((r.status === 409 || (r.status === 422 && sha)) && !_retrying) {
       delete _shaCache[path]
       return pushToGitHub(path, content, token, true)
     }
+    // 422 without sha = file exists but we couldn't read it — missing Read permission
     if (r.status === 422 && !sha) {
       return { ok: false, error: 'no-read-permission' }
     }
