@@ -1130,7 +1130,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   margin-top:  24px;
   border-top:  1px solid var(--border-subtle);
   padding-top: 16px;
-  --oon-accent: #2dd4bf;
+  --oon-accent: #0891b2;
 }
 
 .oon-grid {
@@ -1169,7 +1169,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .oon-topic-count {
   font-size:     12px;
   color:         var(--oon-accent);
-  background:    rgba(45,212,191,.12);
+  background:    rgba(8,145,178,.12);
   border-radius: 20px;
   padding:       1px 8px;
   font-weight:   600;
@@ -1211,7 +1211,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
 .oon-topic:hover > .oon-topic-row { background: var(--surface-hover); }
 
 .oon-topic--pinned > .oon-topic-row {
-  background: rgba(45,212,191,.06);
+  background: rgba(8,145,178,.06);
 }
 
 .oon-topic-row {
@@ -1265,7 +1265,7 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   transition:    color .1s, background .1s;
 }
 .oon-notes-expand:hover,
-.oon-notes-expand--open { color: var(--oon-accent); background: rgba(45,212,191,.1); }
+.oon-notes-expand--open { color: var(--oon-accent); background: rgba(8,145,178,.1); }
 
 .oon-topic-notes {
   padding:        6px 12px 10px 38px;
@@ -1282,50 +1282,6 @@ a.worklog-ado-id:hover { text-decoration: underline; }
   text-align: center;
   padding:    16px 0 10px;
   font-style: italic;
-}
-
-.oon-notes-section {
-  border-top: 1px solid var(--border-subtle);
-  padding:    0;
-}
-
-.oon-notes-toggle {
-  display:         flex;
-  align-items:     center;
-  gap:             6px;
-  width:           100%;
-  background:      transparent;
-  border:          none;
-  cursor:          pointer;
-  font-family:     var(--font);
-  font-size:       12px;
-  font-weight:     600;
-  color:           var(--text-muted);
-  text-transform:  uppercase;
-  letter-spacing:  .5px;
-  padding:         8px 14px;
-  text-align:      left;
-  transition:      background .1s, color .1s;
-}
-.oon-notes-toggle:hover { background: rgba(45,212,191,.08); color: var(--oon-accent); }
-
-.oon-notes-count {
-  font-size:     11px;
-  font-weight:   600;
-  color:         var(--text-muted);
-  background:    var(--bg-subtle);
-  border:        1px solid var(--border-subtle);
-  border-radius: 20px;
-  padding:       1px 6px;
-}
-
-.oon-notes {
-  padding:        8px 14px 12px;
-  display:        flex;
-  flex-direction: column;
-  gap:            6px;
-  border-top:     1px solid var(--border-subtle);
-  background:     var(--bg-inset);
 }
 
 .oon-note-add {

@@ -35,7 +35,7 @@ function TopicRow({ personId, topic, onDeleteTopic, onTogglePin, onAddTopicNote,
           onClick={() => setExpanded(s => !s)}
           title="Toggle notes"
         >
-          {expanded ? '▾' : '▸'} {notes.length > 0 ? notes.length : ''}
+          {expanded ? '▾' : '▸'}{notes.length > 0 ? ` ${notes.length}` : ''}
         </button>
         <button
           className="btn-icon btn-icon--delete"
@@ -84,28 +84,14 @@ function TopicRow({ personId, topic, onDeleteTopic, onTogglePin, onAddTopicNote,
   )
 }
 
-function PersonCard({
-  person,
-  onAddTopic, onDeleteTopic, onTogglePin,
-  onAddTopicNote, onDeleteTopicNote,
-  onAddNote, onDeleteNote,
-}) {
+function PersonCard({ person, onAddTopic, onDeleteTopic, onTogglePin, onAddTopicNote, onDeleteTopicNote }) {
   const [topicDraft, setTopicDraft] = useState('')
-  const [noteDraft, setNoteDraft]   = useState('')
-  const [showNotes, setShowNotes]   = useState(false)
 
   const handleAddTopic = () => {
     const text = topicDraft.trim()
     if (!text) return
     onAddTopic(person.id, text)
     setTopicDraft('')
-  }
-
-  const handleAddNote = () => {
-    const text = noteDraft.trim()
-    if (!text) return
-    onAddNote(person.id, text)
-    setNoteDraft('')
   }
 
   const pinned    = person.topics.filter(t => t.pinned)
@@ -132,7 +118,7 @@ function PersonCard({
         </button>
       </div>
 
-      {allTopics.length > 0 && (
+      {allTopics.length > 0 ? (
         <ul className="oon-topic-list">
           {allTopics.map(topic => (
             <TopicRow
@@ -146,65 +132,14 @@ function PersonCard({
             />
           ))}
         </ul>
-      )}
-
-      {allTopics.length === 0 && (
+      ) : (
         <p className="oon-empty">No topics yet.</p>
       )}
-
-      <div className="oon-notes-section">
-        <button className="oon-notes-toggle" onClick={() => setShowNotes(s => !s)}>
-          {showNotes ? '▾' : '▸'} General Notes
-          {person.notes.length > 0 && <span className="oon-notes-count">{person.notes.length}</span>}
-        </button>
-
-        {showNotes && (
-          <div className="oon-notes">
-            <div className="oon-note-add">
-              <span className="worklog-note-date worklog-note-date--today">{todayLabel()}</span>
-              <textarea
-                className="worklog-textarea"
-                placeholder="Add a note…"
-                rows={2}
-                value={noteDraft}
-                onChange={e => setNoteDraft(e.target.value)}
-                onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); handleAddNote() } }}
-              />
-              <button
-                className="btn-add btn-add--sm"
-                onClick={handleAddNote}
-                disabled={!noteDraft.trim()}
-              >Log</button>
-            </div>
-
-            {person.notes.length === 0 && (
-              <p className="worklog-notes-empty">No notes yet.</p>
-            )}
-
-            {person.notes.slice().reverse().map(note => (
-              <div key={note.id} className="worklog-note">
-                <span className="worklog-note-date">{note.date}</span>
-                <span className="worklog-note-text">{note.text}</span>
-                <button
-                  className="btn-icon btn-icon--delete"
-                  onClick={() => onDeleteNote(person.id, note.id)}
-                  title="Delete note"
-                >✕</button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   )
 }
 
-export default function OneOnOne({
-  people,
-  onAddTopic, onDeleteTopic, onTogglePin,
-  onAddTopicNote, onDeleteTopicNote,
-  onAddNote, onDeleteNote,
-}) {
+export default function OneOnOne({ people, onAddTopic, onDeleteTopic, onTogglePin, onAddTopicNote, onDeleteTopicNote }) {
   const [open, setOpen] = useState(true)
 
   return (
@@ -227,8 +162,6 @@ export default function OneOnOne({
               onTogglePin={onTogglePin}
               onAddTopicNote={onAddTopicNote}
               onDeleteTopicNote={onDeleteTopicNote}
-              onAddNote={onAddNote}
-              onDeleteNote={onDeleteNote}
             />
           ))}
         </div>

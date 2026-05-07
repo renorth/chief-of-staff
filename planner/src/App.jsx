@@ -514,8 +514,6 @@ export default function App() {
         onTogglePin={oonTogglePin}
         onAddTopicNote={oonAddTopicNote}
         onDeleteTopicNote={oonDeleteTopicNote}
-        onAddNote={oonAddNote}
-        onDeleteNote={oonDeleteNote}
       />
 
       <WorkLog
