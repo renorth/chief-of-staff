@@ -271,8 +271,22 @@ export function mergeOneOnOnes(local, remote) {
   return remote.map(rp => {
     const lp = localMap.get(rp.id)
     if (!lp) return rp
-    // Remote is source of truth for topics/notes; local wins if remote hasn't changed
-    return rp
+
+    // Merge topics by ID: remote is base, append local-only topics not yet pushed
+    const remoteTopicIds = new Set(rp.topics.map(t => t.id))
+    const mergedTopics = [
+      ...rp.topics.map(rt => {
+        const lt = lp.topics.find(t => t.id === rt.id)
+        if (!lt) return rt
+        // Merge per-topic notes by ID
+        const remoteNoteIds = new Set((rt.notes ?? []).map(n => n.id))
+        const localOnlyNotes = (lt.notes ?? []).filter(n => !remoteNoteIds.has(n.id))
+        return { ...rt, notes: [...(rt.notes ?? []), ...localOnlyNotes] }
+      }),
+      ...lp.topics.filter(t => !remoteTopicIds.has(t.id)),
+    ]
+
+    return { ...rp, topics: mergedTopics }
   })
 }
 

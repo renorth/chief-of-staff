@@ -447,7 +447,7 @@ export default function App() {
               <button className="gh-sync-btn gh-sync-btn--error" onClick={() => setShowTokenInput(v => !v)}>
                 Token needs Read+Write — fix
               </button>
-            ) : ghStatus !== 'idle' && ghStatus !== 'saving' && ghStatus !== 'saved' && ghStatus !== 'bad-token' ? (
+            ) : ghStatus !== 'idle' && ghStatus !== 'saving' && ghStatus !== 'saved' && ghStatus !== 'bad-token' && ghStatus !== 'no-read-permission' ? (
               <span className="gh-sync-badge gh-sync-badge--error" title={ghStatus}>Sync failed</span>
             ) : (
               <button className="gh-sync-btn gh-sync-btn--connected" onClick={() => setShowTokenInput(v => !v)}>
@@ -456,8 +456,13 @@ export default function App() {
             )}
             {showTokenInput && (
               <form className="gh-token-form" onSubmit={handleTokenSave}>
+                {ghStatus === 'no-read-permission' && (
+                  <p className="gh-token-hint" style={{ color: 'var(--red)', marginBottom: 4 }}>
+                    Your token is missing <strong>Contents: Read</strong> access. Create a new token with both Read <em>and</em> Write checked.
+                  </p>
+                )}
                 <p className="gh-token-hint">
-                  Go to <strong>GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens</strong>. Create a token with <strong>Contents: Read and write</strong> (both are required) on the <code>chief-of-staff</code> repo only.
+                  GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → <strong>Repository permissions → Contents → Access: Read and write</strong>
                 </p>
                 <input
                   className="gh-token-input"
